@@ -16,6 +16,10 @@
 
   const { dist2, rand } = CDL;
 
+  // Sources that deal damage every frame (beams / fields). They skip the
+  // per-enemy hit flash so a threat isn't held permanently white.
+  const CONTINUOUS_SRC = { quarantine: 1, dlp: 1, sandbox: 1, memory: 1 };
+
   /* Base stats are scaled per-wave at spawn time (see waves.js).
      Extra fields power the in-game info screens & incident report:
        behavior  short in-game behaviour (Threat Intel)
@@ -25,21 +29,21 @@
      Stable display order lives in CDL.THREAT_ORDER below. */
   CDL.ENEMY_TYPES = {
     malware: {
-      r: 14, hp: 30, speed: 60, damage: 8, score: 10, xp: 2,
+      r: 14, hp: 26, speed: 60, damage: 8, score: 10, xp: 2,
       color: "#f97316", shape: "blob", label: "Malware Blob", danger: "Low",
       behavior: "Drifts toward you at a steady pace.",
       tip: "Patching and endpoint detection limit how far malware can spread.",
       reco: "Improve endpoint detection and response coverage.",
     },
     phishing: {
-      r: 10, hp: 16, speed: 122, damage: 6, score: 12, xp: 2,
+      r: 10, hp: 14, speed: 122, damage: 6, score: 12, xp: 2,
       color: "#fb7185", shape: "hook", label: "Phishing Hook", danger: "Low",
       behavior: "Fragile, but rushes in fast.",
       tip: "User awareness and inbound filtering blunt phishing before it lands.",
       reco: "Reinforce email filtering and user-awareness training.",
     },
     bruteforce: {
-      r: 8, hp: 10, speed: 88, damage: 4, score: 6, xp: 1,
+      r: 8, hp: 9, speed: 88, damage: 4, score: 6, xp: 1,
       color: "#f43f5e", shape: "diamond", label: "Brute Force Swarm", danger: "Medium",
       behavior: "Weak alone, but arrives in swarms.",
       tip: "Rate limiting, lockouts, and strong credentials defeat brute force.",
@@ -85,9 +89,8 @@
     const S = CDL.S;
     e.hp -= dmg;
 
-    // Hit flash (cheap, per-enemy). Skip the Quarantine Beam since it
-    // applies damage every frame and would keep the threat lit white.
-    if (source !== "quarantine") e.hitFlash = 0.12;
+    // Hit flash (cheap, per-enemy). Skipped for continuous-damage sources.
+    if (!CONTINUOUS_SRC[source]) e.hitFlash = 0.12;
 
     if (e.hp > 0) return false;
 
@@ -144,6 +147,7 @@
       for (let i = S.enemies.length - 1; i >= 0; i--) {
         const e = S.enemies[i];
         if (e.shieldCd > 0) e.shieldCd -= dt;
+        if (e.shredCd > 0) e.shredCd -= dt;
         if (e.hitFlash > 0) e.hitFlash -= dt;
 
         // Target the nearest honeypot decoy if one exists, else the player.
@@ -158,11 +162,21 @@
         }
 
         const ang = Math.atan2(ty - e.y, tx - e.x);
-        let sp = e.speed;
-        // DNS sinkhole slow.
+
+        // Fields: take the strongest slow + the strongest damage-over-time.
+        let minSlow = 1, fdps = 0, fsrc = null;
         for (const f of S.fields) {
-          if (dist2(e.x, e.y, f.x, f.y) <= f.r * f.r) { sp *= f.slow; break; }
+          if (dist2(e.x, e.y, f.x, f.y) <= f.r * f.r) {
+            if (f.slow < minSlow) minSlow = f.slow;
+            if (f.dps) {
+              let d = f.dps;
+              if (f.kind === "dlp" && e.type === "exfil") d *= 2; // DLP counters exfiltration
+              if (d > fdps) { fdps = d; fsrc = f.kind === "sandbox" ? "sandbox" : "dlp"; }
+            }
+          }
         }
+        const sp = e.speed * minSlow;
+
         // Credential Thief weaves as it closes in.
         let move = ang;
         if (e.type === "credential") move += Math.sin(S.runTime * 4 + e.wob) * 0.5;
@@ -171,11 +185,14 @@
         e.y += Math.sin(move) * sp * dt + e.vy * dt;
         e.vx *= 0.86; e.vy *= 0.86;   // decay knockback
 
-        // Contact damage.
+        // Contact damage to the player.
         const rad = e.r + p.r;
         if (p.invuln <= 0 && dist2(e.x, e.y, p.x, p.y) <= rad * rad) {
           CDL.Player.hit(e);
         }
+
+        // Field damage-over-time (DLP / Sandbox) — may defeat the threat.
+        if (fdps > 0 && CDL.damageEnemy(e, fdps * dt, fsrc)) continue;
       }
     },
 

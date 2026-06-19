@@ -63,6 +63,7 @@
       color: def.color, shape: def.shape,
       vx: 0, vy: 0,       // knockback velocity
       shieldCd: 0,        // per-enemy cooldown vs MFA shield
+      shredCd: 0,         // per-enemy cooldown vs Log Shredder
       hitFlash: 0,        // brief white flash when struck
       wob: Math.random() * 6.28,
     });

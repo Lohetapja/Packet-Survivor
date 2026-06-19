@@ -56,11 +56,22 @@ Introduced one new type per wave so the player learns each in isolation:
 
 ## Tools (defensive)
 
-Start with **Firewall Pulse**; unlock the rest via upgrades. Each maps to a real
-defensive control: EDR (endpoint detection & response), SIEM (security
-analytics), DNS sinkhole, MFA, honeypot, quarantine/isolation, and backups.
-Tools are split between **active** (auto-firing effects) and **passive**
-(Backup Restore). See the README table for behaviours.
+Start with **Firewall Pulse**; unlock the rest via upgrades. There are
+**fourteen** tools, each mapping to a real defensive control and falling into a
+loose archetype so builds feel distinct:
+
+- **Perimeter / area:** Firewall Pulse, Patch Wave — pulses around the player.
+- **Projectile:** EDR Burst, Packet Storm — tracking or radial fire.
+- **Companion:** Threat Hunter Drone — orbits and auto-targets.
+- **Orbit / melee:** MFA Shield, Log Shredder — damage on contact.
+- **Field / control:** DNS Sinkhole, DLP Net, Sandbox Trap, Honeypot Decoy —
+  slow, trap, or distract.
+- **Beam / detection:** SIEM Scanner, Quarantine Beam — scan and isolate.
+- **Passive:** Backup Restore — post-wave recovery.
+
+Most tools auto-fire; a couple (Backup Restore) are passive. Several have a
+flavour counter — e.g. EDR is strong vs Malware/Ransomware, DLP Net vs the
+Exfiltration Drone. See the README table for per-tool behaviour.
 
 ## Progression & upgrades
 
@@ -96,6 +107,13 @@ Every new wave nudges four levers (all in `src/js/config.js → waves`):
 
 **Backup Restore** heals a modest flat amount per wave: a meaningful safety net
 that buys time but cannot outpace late-wave damage, so death stays inevitable.
+
+*v0.4.0 tuning:* existing tool damage was raised ~12–20% and early enemy HP
+trimmed so the player feels a little stronger and the opening is comfortable —
+without changing the death curve (Analyst still falls around wave 7). The larger
+tool roster spreads upgrades thinner per run, which keeps power in check while
+adding variety. Level-ups mildly favour NEW TOOL cards early so builds diverge
+quickly.
 
 ## Difficulty modes
 

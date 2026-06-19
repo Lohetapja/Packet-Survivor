@@ -12,6 +12,8 @@ API, database, accounts, or tracking.
       flash, screen shake (v0.3.0).
 - [x] **Threat Intel & Defensive Tools** in-game guides (v0.3.0).
 - [x] **Upgrade rarity** badges + richer incident report with per-type breakdown (v0.3.0).
+- [x] **Six new defensive tools** (Packet Storm, Threat Hunter Drone, Patch Wave,
+      DLP Net, Log Shredder, Sandbox Trap) + balance pass — 14 tools total (v0.4.0).
 
 ## Near term (small, safe additions)
 
@@ -23,8 +25,8 @@ API, database, accounts, or tracking.
 
 ## Mid term (gameplay depth)
 
-- [ ] **2–3 more defensive tools** (e.g. "Patch Deployment" area cleanse,
-      "Network Segmentation" walls, "Threat Intel Feed" auto-reveal).
+- [ ] **A few more tools** from the original wishlist (Credential Lockout
+      control burst, Memory Scanner beam) to round out the roster.
 - [ ] **Synergy upgrades** — cards that combine two owned tools.
 - [ ] **More threats** + a periodic **"Intrusion" mini-boss** every few waves.
 - [ ] **Tool cooldown/loadout HUD** showing owned tools and levels.

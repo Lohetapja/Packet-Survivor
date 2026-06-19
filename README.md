@@ -43,7 +43,8 @@ https://lohetapja.github.io/Packet-Survivor/
 - 🎮 Top-down arena survival with smooth WASD / arrow-key movement
 - 🎚️ Three **difficulty modes** — Training, Analyst, Incident Commander
 - 🌊 Seven distinct threat types introduced one wave at a time
-- 🧰 Eight defensive tools that **auto-activate** — detection, containment & recovery
+- 🧰 **Fourteen** defensive tools that **auto-activate** — detection, containment, companions & control
+- 🧬 High **build variety** — mix orbiting, area, projectile, and trap tools each run
 - ⬆️ Level-up chooser with **type and rarity** badges (New Tool / Upgrade / Passive · Common / Uncommon / Rare)
 - ✨ Lightweight game feel: hit flashes, death bursts, telemetry pops, damage flash, screen shake
 - 📚 In-game **Threat Intel** and **Defensive Tools** guides — learn through play, no quiz
@@ -95,6 +96,12 @@ level-up upgrades.
 | 🍯 Honeypot Decoy | Active | Deploys a lure that distracts threats away from you |
 | 🎯 Quarantine Beam | Active | Beams the closest threat with steady damage over time |
 | 💾 Backup Restore | Passive | Restores some health after each wave you survive |
+| 💠 Packet Storm | Active | Burst-fires packets in all directions — clears weak swarms |
+| 🚁 Threat Hunter Drone | Companion | An orbiting drone auto-shoots the nearest threat (up to 3) |
+| 🩹 Patch Wave | Active | Periodic expanding remediation wave around the player |
+| 🕸️ DLP Net | Field | Slows and damages threats in a net; extra-effective vs Exfiltration |
+| 🌀 Log Shredder | Orbit | An orbiting telemetry shard shreds threats it touches |
+| 🧪 Sandbox Trap | Field | A containment zone that strongly slows and saps threats |
 
 ## Threat Types
 

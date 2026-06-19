@@ -144,6 +144,98 @@
       desc: "Faster recovery. +6 health restored each wave.",
       available: (t) => t.backup.owned,
       apply: (p, t) => { t.backup.amount += 6; t.backup.level++; } },
+
+    /* ============ v0.4.0 new tools ============ */
+
+    /* ---- Packet Storm ---- */
+    { id: "ps_unlock", name: "Packet Storm", icon: "💠", kind: "unlock", rarity: "rare",
+      desc: "Burst-fire defensive packets in all directions. Clears weak swarms.",
+      available: (t) => !t.packetstorm.owned,
+      apply: (p, t) => { t.packetstorm.owned = true; t.packetstorm.level = 1; feed("Packet Storm online."); } },
+    { id: "ps_dmg", name: "Packet Storm +Damage", icon: "💠", kind: "upgrade", rarity: "common",
+      desc: "Harder-hitting packets. +5 damage.",
+      available: (t) => t.packetstorm.owned, apply: (p, t) => { t.packetstorm.damage += 5; t.packetstorm.level++; } },
+    { id: "ps_count", name: "Packet Storm +Packets", icon: "💠", kind: "upgrade", rarity: "uncommon",
+      desc: "Denser volley. +2 packets per burst.",
+      available: (t) => t.packetstorm.owned, apply: (p, t) => { t.packetstorm.count += 2; t.packetstorm.level++; } },
+    { id: "ps_cd", name: "Packet Storm -Cooldown", icon: "💠", kind: "upgrade", rarity: "uncommon",
+      desc: "Fire more often. 15% shorter cooldown.",
+      available: (t) => t.packetstorm.owned, apply: (p, t) => { t.packetstorm.interval *= 0.85; t.packetstorm.level++; } },
+
+    /* ---- Threat Hunter Drone ---- */
+    { id: "dr_unlock", name: "Threat Hunter Drone", icon: "🚁", kind: "unlock", rarity: "rare",
+      desc: "Deploy a drone that orbits you and auto-shoots nearby threats.",
+      available: (t) => !t.drone.owned,
+      apply: (p, t) => { t.drone.owned = true; t.drone.level = 1; feed("Threat Hunter Drone deployed."); } },
+    { id: "dr_dmg", name: "Threat Hunter +Damage", icon: "🚁", kind: "upgrade", rarity: "common",
+      desc: "Stronger rounds. +5 drone damage.",
+      available: (t) => t.drone.owned, apply: (p, t) => { t.drone.damage += 5; t.drone.level++; } },
+    { id: "dr_rate", name: "Threat Hunter +Fire Rate", icon: "🚁", kind: "upgrade", rarity: "uncommon",
+      desc: "Faster targeting. Fires 20% faster.",
+      available: (t) => t.drone.owned, apply: (p, t) => { t.drone.fireInterval *= 0.8; t.drone.level++; } },
+    { id: "dr_count", name: "Threat Hunter +Drone", icon: "🚁", kind: "upgrade", rarity: "rare",
+      desc: "Deploy an additional hunter drone (max 3).",
+      available: (t) => t.drone.owned && t.drone.count < 3, apply: (p, t) => { t.drone.count += 1; t.drone.level++; } },
+
+    /* ---- Patch Wave ---- */
+    { id: "pw_unlock", name: "Patch Wave", icon: "🩹", kind: "unlock", rarity: "rare",
+      desc: "Release a periodic remediation wave around the player.",
+      available: (t) => !t.patchwave.owned,
+      apply: (p, t) => { t.patchwave.owned = true; t.patchwave.level = 1; feed("Patch Wave rolling out."); } },
+    { id: "pw_radius", name: "Patch Wave +Radius", icon: "🩹", kind: "upgrade", rarity: "common",
+      desc: "Wider coverage. +30 wave radius.",
+      available: (t) => t.patchwave.owned, apply: (p, t) => { t.patchwave.radius += 30; t.patchwave.level++; } },
+    { id: "pw_dmg", name: "Patch Wave +Damage", icon: "🩹", kind: "upgrade", rarity: "common",
+      desc: "Deeper remediation. +7 wave damage.",
+      available: (t) => t.patchwave.owned, apply: (p, t) => { t.patchwave.damage += 7; t.patchwave.level++; } },
+    { id: "pw_cd", name: "Patch Wave -Cooldown", icon: "🩹", kind: "upgrade", rarity: "uncommon",
+      desc: "Patch faster. 15% shorter cooldown.",
+      available: (t) => t.patchwave.owned, apply: (p, t) => { t.patchwave.interval *= 0.85; t.patchwave.level++; } },
+
+    /* ---- DLP Net ---- */
+    { id: "dlp_unlock", name: "DLP Net", icon: "🕸️", kind: "unlock", rarity: "rare",
+      desc: "Slow and damage threats inside a net. Extra-effective vs Exfiltration.",
+      available: (t) => !t.dlp.owned,
+      apply: (p, t) => { t.dlp.owned = true; t.dlp.level = 1; feed("DLP Net armed."); } },
+    { id: "dlp_dmg", name: "DLP Net +Damage", icon: "🕸️", kind: "upgrade", rarity: "common",
+      desc: "Tighter inspection. +6 net damage per second.",
+      available: (t) => t.dlp.owned, apply: (p, t) => { t.dlp.dps += 6; t.dlp.level++; } },
+    { id: "dlp_dur", name: "DLP Net +Duration", icon: "🕸️", kind: "upgrade", rarity: "uncommon",
+      desc: "Lingers longer. Net lasts +1.5s.",
+      available: (t) => t.dlp.owned, apply: (p, t) => { t.dlp.duration += 1.5; t.dlp.level++; } },
+    { id: "dlp_slow", name: "DLP Net +Slow", icon: "🕸️", kind: "upgrade", rarity: "uncommon",
+      desc: "Stickier net. Slows trapped threats more.",
+      available: (t) => t.dlp.owned, apply: (p, t) => { t.dlp.slow *= 0.82; t.dlp.level++; } },
+
+    /* ---- Log Shredder ---- */
+    { id: "sh_unlock", name: "Log Shredder", icon: "🌀", kind: "unlock", rarity: "rare",
+      desc: "An orbiting telemetry shard shreds threats it touches.",
+      available: (t) => !t.shredder.owned,
+      apply: (p, t) => { t.shredder.owned = true; t.shredder.level = 1; feed("Log Shredder spinning up."); } },
+    { id: "sh_dmg", name: "Log Shredder +Damage", icon: "🌀", kind: "upgrade", rarity: "common",
+      desc: "Sharper shards. +6 shredder damage.",
+      available: (t) => t.shredder.owned, apply: (p, t) => { t.shredder.damage += 6; t.shredder.level++; } },
+    { id: "sh_speed", name: "Log Shredder +Speed", icon: "🌀", kind: "upgrade", rarity: "uncommon",
+      desc: "Faster orbit. Spins 25% faster.",
+      available: (t) => t.shredder.owned, apply: (p, t) => { t.shredder.rotSpeed *= 1.25; t.shredder.level++; } },
+    { id: "sh_size", name: "Log Shredder +Size", icon: "🌀", kind: "upgrade", rarity: "uncommon",
+      desc: "Bigger arc. Larger shard and reach.",
+      available: (t) => t.shredder.owned, apply: (p, t) => { t.shredder.size += 5; t.shredder.radius += 6; t.shredder.level++; } },
+
+    /* ---- Sandbox Trap ---- */
+    { id: "sb_unlock", name: "Sandbox Trap", icon: "🧪", kind: "unlock", rarity: "rare",
+      desc: "Deploy a containment zone that slows and saps trapped threats.",
+      available: (t) => !t.sandbox.owned,
+      apply: (p, t) => { t.sandbox.owned = true; t.sandbox.level = 1; feed("Sandbox Trap ready."); } },
+    { id: "sb_radius", name: "Sandbox Trap +Radius", icon: "🧪", kind: "upgrade", rarity: "common",
+      desc: "Larger zone. +25 sandbox radius.",
+      available: (t) => t.sandbox.owned, apply: (p, t) => { t.sandbox.radius += 25; t.sandbox.level++; } },
+    { id: "sb_dur", name: "Sandbox Trap +Duration", icon: "🧪", kind: "upgrade", rarity: "uncommon",
+      desc: "Holds longer. Zone lasts +1.5s.",
+      available: (t) => t.sandbox.owned, apply: (p, t) => { t.sandbox.duration += 1.5; t.sandbox.level++; } },
+    { id: "sb_cd", name: "Sandbox Trap -Cooldown", icon: "🧪", kind: "upgrade", rarity: "uncommon",
+      desc: "Deploy more often. 15% shorter cooldown.",
+      available: (t) => t.sandbox.owned, apply: (p, t) => { t.sandbox.interval *= 0.85; t.sandbox.level++; } },
   ];
 
   // Tag text + css class per kind (the type badge on a card).
@@ -161,10 +253,13 @@
   };
 
   // Pick 3 distinct, currently-valid upgrades, weighted by rarity so
-  // rares feel like a find (purely cosmetic-strength weighting).
+  // rares feel like a find. NEW TOOL cards get a small early-game bias so
+  // players build variety quickly (purely soft weighting, not power tiers).
   CDL.buildChoices = function () {
     const pool = CDL.UPGRADES.filter((u) => u.available(CDL.S.player.tools)).slice();
-    const wOf = (u) => (CDL.UPGRADE_RARITY[u.rarity] || CDL.UPGRADE_RARITY.common).weight;
+    const rar = (u) => (CDL.UPGRADE_RARITY[u.rarity] || CDL.UPGRADE_RARITY.common).weight;
+    const unlockBias = CDL.S.player.level <= 6 ? 1.5 : 1.0; // favour new tools early
+    const wOf = (u) => rar(u) * (u.kind === "unlock" ? unlockBias : 1);
     const out = [];
     while (out.length < 3 && pool.length) {
       let total = 0;

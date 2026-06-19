@@ -4,6 +4,40 @@ All notable changes to **Cyber Defense Lab: Packet Survivor** are documented
 here. The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the project aims to follow [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] - 2026-06-19 — Weapons & Balance Update
+
+Six new defensive tools and a balance pass for a stronger, more varied feel.
+Fully additive — existing tools and the core loop are unchanged.
+
+### Added — new defensive tools (each with an unlock + 3 upgrade cards)
+- **Packet Storm** 💠 — burst-fires defensive packets in all directions; great
+  for clearing weak swarms. Upgrades: +damage, +packets, -cooldown.
+- **Threat Hunter Drone** 🚁 — an orbiting companion that auto-shoots the nearest
+  threat. Upgrades: +damage, +fire rate, +drone (up to 3).
+- **Patch Wave** 🩹 — periodic expanding remediation ring around the player.
+  Upgrades: +radius, +damage, -cooldown.
+- **DLP Net** 🕸️ — a net field that slows and damages threats; extra-effective vs
+  the Exfiltration Drone. Upgrades: +damage, +duration, +slow.
+- **Log Shredder** 🌀 — an orbiting telemetry shard that shreds threats it touches.
+  Upgrades: +damage, +orbit speed, +size.
+- **Sandbox Trap** 🧪 — a containment zone that strongly slows and saps trapped
+  threats. Upgrades: +radius, +duration, -cooldown.
+
+### Changed — balance
+- Existing tool base damage raised ~12–20% (Firewall, EDR, SIEM, MFA, Quarantine)
+  so damage feels a little stronger.
+- Early enemy tankiness trimmed (Malware/Phishing/Brute Force) for a more
+  comfortable opening.
+- Level-ups now mildly favour **NEW TOOL** cards in the early game for faster
+  build variety.
+- Difficulty presets unchanged: Training stays forgiving, Analyst balanced,
+  Incident Commander hard. Validated curve (Analyst): waves 1–3 comfortable,
+  4–6 tense, 7+ dangerous.
+
+### Notes
+- Shared rendering primitives extended (projectile `source`/`color`, pulse
+  `color`, field `kind`/`dps`) — no new files; still classic scripts, no build.
+
 ## [0.3.0] - 2026-06-19 — Polish & Incident Report Update
 
 Game-feel, clarity, and replayability pass. Fully additive — the MVP loop is unchanged.

@@ -86,6 +86,18 @@ exclusively through `CDL.UI`.
 4. Add a display name to `CDL.TOOL_META` (incident-report credit) and an entry
    to `CDL.TOOL_INFO` + `CDL.TOOL_ORDER` (the Defensive Tools guide).
 
+Reusable primitives (so a new tool rarely needs new render code):
+- **Projectiles** — push to `S.projectiles` with `{ x, y, vx, vy, dmg, r, life,
+  source, color, bonus? }`. `source` drives kill credit; `color` tints it;
+  `bonus` applies the anti-Malware/Ransomware multiplier.
+- **Pulses** — push to `S.pulses` with `{ x, y, r:0, maxR, life, maxLife,
+  color? }` (`color` is an `"r,g,b"` string) for an expanding ring.
+- **Fields** — push to `S.fields` with `{ x, y, r, slow, life, maxLife, kind,
+  dps? }`. `slow` multiplies enemy speed inside; `dps` deals damage-over-time
+  (handled in `enemies.js`); `kind` (`dns`/`dlp`/`sandbox`) selects the visual.
+- Continuous damage sources (beams/fields) should be listed in
+  `CONTINUOUS_SRC` (enemies.js) so they skip the per-hit flash.
+
 ### Add an upgrade
 Append an object to `CDL.UPGRADES` with `id`, `name`, `icon`, `kind`
 (`unlock` | `upgrade` | `passive`), `rarity` (`common` | `uncommon` | `rare`),
