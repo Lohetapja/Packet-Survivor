@@ -1,11 +1,10 @@
 # Screenshots
 
-Drop PNG screenshots here to populate the README's screenshot table. Expected
-filenames (referenced by `../../README.md`):
+These images are referenced by the project `README.md`:
 
-- `menu.png` — the main menu
-- `gameplay.png` — mid-wave arena survival
-- `upgrades.png` — the level-up upgrade chooser
-- `gameover.png` — the game-over incident report
+- `menu.jpg` — the main menu
+- `gameplay.jpg` — mid-wave arena survival
+- `upgrades.jpg` — the level-up upgrade chooser
+- `how-to-play.jpg` — the How to Play screen
 
-Suggested capture size: 1000×620 (the game's internal resolution) or any 16:10-ish crop.
+Suggested capture size: 1000×620 (the game's internal resolution) or any similar crop.
