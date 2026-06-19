@@ -48,6 +48,20 @@ window.CDL = window.CDL || {};
       spawnMin: 0.34,        // floor on spawn gap
       batchAfter: 6,         // extra enemies per tick start after this wave
     },
+
+    // Difficulty presets — simple multipliers layered on top of wave scaling.
+    //   hp/speed/damage : flat multipliers on base enemy stats
+    //   scale           : multiplier on the per-wave ramp (slower/faster scaling)
+    //   spawn           : multiplier on spawn interval (>1 = slower spawns = easier)
+    difficulties: {
+      training:  { label: "Training",           hp: 0.80, speed: 0.90, damage: 0.70, scale: 0.65, spawn: 1.30,
+                   desc: "Forgiving. Slower scaling and gentler threats — learn the ropes." },
+      analyst:   { label: "Analyst",            hp: 1.00, speed: 1.00, damage: 1.00, scale: 1.00, spawn: 1.00,
+                   desc: "Balanced challenge. The standard Packet Survivor experience." },
+      incident:  { label: "Incident Commander", hp: 1.25, speed: 1.10, damage: 1.30, scale: 1.35, spawn: 0.82,
+                   desc: "Relentless. Faster scaling, tougher threats, constant pressure." },
+    },
+    defaultDifficulty: "analyst",
   };
 
   // Convenience aliases used all over the codebase.
@@ -59,13 +73,19 @@ window.CDL = window.CDL || {};
      replaces CDL.S), so module references stay valid across restarts. */
   CDL.S = {
     state: "menu",           // menu | howto | playing | paused | levelup | gameover
+    difficulty: "analyst",   // training | analyst | incident (chosen on the menu)
     player: null,
-    enemies: [], projectiles: [], pickups: [], pulses: [], fields: [], decoys: [],
+    enemies: [], projectiles: [], pickups: [], pulses: [], fields: [], decoys: [], particles: [],
     feed: [],
     wave: 1, waveTimer: 0, spawnTimer: 0, runTime: 0,
     bestScore: 0, shake: 0, pendingLevelUps: 0,
     stats: null,             // per-run tally for the incident report
   };
+
+  // Active difficulty preset.
+  CDL.diff = () =>
+    CDL.CONFIG.difficulties[CDL.S.difficulty] ||
+    CDL.CONFIG.difficulties[CDL.CONFIG.defaultDifficulty];
 
   /* ---- Tiny math helpers ---- */
   CDL.rand = (a, b) => a + Math.random() * (b - a);
@@ -82,7 +102,9 @@ window.CDL = window.CDL || {};
   // Fresh per-run stats container (kills + which tool/threat mattered most).
   CDL.freshStats = () => ({
     kills: 0,
+    telemetry: 0,        // total telemetry/XP collected this run
     killsByTool: {},     // source -> count   (for "most effective tool")
+    killsByType: {},     // enemy type -> count   (threat breakdown)
     dmgByThreat: {},     // enemy type -> total damage dealt to player
   });
 })(window.CDL);

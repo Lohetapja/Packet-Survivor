@@ -4,6 +4,39 @@ All notable changes to **Cyber Defense Lab: Packet Survivor** are documented
 here. The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the project aims to follow [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] - 2026-06-19 — Polish & Incident Report Update
+
+Game-feel, clarity, and replayability pass. Fully additive — the MVP loop is unchanged.
+
+### Added
+- **Difficulty modes** — *Training*, *Analyst*, and *Incident Commander*, chosen
+  on the main menu. Simple multipliers in `config.js` adjust threat HP, speed,
+  contact damage, scaling rate, and spawn pace. The selected mode shows on the
+  HUD and in the incident report.
+- **Visual feedback (juice):** per-threat hit flash, particle burst on threat
+  death, a pop when telemetry is collected, a red player-damage flash, and
+  damage-scaled screen shake. New lightweight `src/js/effects.js` particle pool
+  (hard-capped for performance).
+- **Threat Intel** and **Defensive Tools** guides on the How to Play screen,
+  generated from data — each threat shows behaviour, a danger rating, and a
+  short cyber explanation; each tool shows its in-game behaviour and a defensive
+  explanation.
+- **Upgrade rarity** — cards now show a rarity badge (COMMON / UNCOMMON / RARE)
+  alongside the type badge (NEW TOOL / UPGRADE / PASSIVE); the draw is lightly
+  weighted by rarity.
+- **Richer incident report** — adds Telemetry Collected, Difficulty, and a
+  per-type *threats contained* breakdown; the recommendation is now keyed to the
+  highest-risk threat (e.g. Ransomware → "Improve endpoint containment and backup
+  recovery coverage.").
+- Clearer **wave start** (animated banner) and **wave complete** ("Wave N
+  contained") messaging.
+
+### Changed
+- Enemy silhouettes sharpened with consistent outlines and small identifying
+  marks (ransomware padlock, credential key-bow, exfil motion trail, C2 beacon
+  rings) for faster recognition.
+- Two upgrades renamed for clarity: *Telemetry Magnet* and *Honeypot -Cooldown*.
+
 ## [0.2.0] - 2026-06-19
 
 Polish & architecture release. No gameplay regressions — the MVP loop is intact.

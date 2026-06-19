@@ -46,7 +46,7 @@
   function newGame() {
     S.player = CDL.Player.create();
     S.enemies = []; S.projectiles = []; S.pickups = [];
-    S.pulses = []; S.fields = []; S.decoys = [];
+    S.pulses = []; S.fields = []; S.decoys = []; S.particles = [];
     S.wave = 1;
     S.waveTimer = CDL.CONFIG.waves.duration;
     S.spawnTimer = 0;
@@ -90,23 +90,32 @@
     CDL.UI.showIncidentReport(buildIncidentReport(isBest));
   }
 
-  // Post-run summary: which tool carried, which threat hurt most, and
-  // an abstract defensive recommendation tied to that threat.
+  // Post-run summary: which tool carried, which threat hurt most, an
+  // abstract defensive recommendation tied to that threat, plus a
+  // per-type breakdown of threats contained.
   function buildIncidentReport(isBest) {
     const p = S.player, st = S.stats;
 
     const topTool = argmax(st.killsByTool);
-    const topThreat = argmax(st.dmgByThreat);
+    // Worst threat = most damage dealt; fall back to most numerous kill.
+    const topThreat = argmax(st.dmgByThreat) || argmax(st.killsByType);
 
     const tool = topTool ? (CDL.TOOL_META[topTool] || topTool) : "Firewall Pulse";
     const threat = topThreat ? CDL.ENEMY_TYPES[topThreat].label : "None — defenses held";
     const reco = topThreat
-      ? CDL.ENEMY_TYPES[topThreat].tip
+      ? CDL.ENEMY_TYPES[topThreat].reco
       : "Defenses held this run. Keep layering controls — defense in depth buys time.";
+
+    const breakdown = CDL.THREAT_ORDER.map((k) => ({
+      label: CDL.ENEMY_TYPES[k].label,
+      count: st.killsByType[k] || 0,
+    }));
 
     return {
       score: p.score, wave: S.wave, level: p.level, best: S.bestScore,
-      threats: st.kills, tool, threat, reco, isBest,
+      threats: st.kills, telemetry: st.telemetry,
+      difficulty: CDL.diff().label,
+      tool, threat, reco, breakdown, isBest,
     };
   }
 
@@ -151,6 +160,7 @@
     CDL.Tools.updateProjectiles(dt);
     CDL.Player.updatePickups(dt);
     CDL.Tools.updateEffects(dt);
+    CDL.Effects.update(dt);
 
     // Waves: spawn on a shrinking timer, advance when the clock runs out.
     S.waveTimer -= dt;
@@ -179,6 +189,7 @@
     CDL.Tools.drawPulses(ctx);     // firewall pulses
     CDL.Enemies.draw(ctx);         // threats
     CDL.Tools.drawOver(ctx);       // EDR projectiles, MFA nodes
+    CDL.Effects.draw(ctx);         // death bursts, telemetry pops
     CDL.Player.draw(ctx);          // the defender packet
 
     ctx.restore();
@@ -202,6 +213,10 @@
   /* ---- Button wiring ---- */
   function wireUI() {
     $("btn-start").addEventListener("click", startGame);
+    // Difficulty selector (menu): clicking a mode selects it.
+    document.querySelectorAll(".diff-btn").forEach((b) => {
+      b.addEventListener("click", () => CDL.UI.selectDifficulty(b.dataset.diff));
+    });
     $("btn-howto").addEventListener("click", () => CDL.UI.showScreen("howto"));
     $("btn-howto-back").addEventListener("click", () => CDL.UI.showScreen("menu"));
     $("btn-reset").addEventListener("click", () => {
@@ -226,6 +241,7 @@
     S.bestScore = CDL.Storage.loadBest();
     CDL.UI.setMenuBest(S.bestScore);
     wireUI();
+    CDL.UI.selectDifficulty(CDL.CONFIG.defaultDifficulty);
     CDL.UI.showScreen("menu");
     requestAnimationFrame(frame);
   }

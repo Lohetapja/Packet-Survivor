@@ -4,15 +4,22 @@ Possible future work, roughly in priority order. Everything here must keep the
 project **static, dependency-free, and GitHub-Pages-friendly** — no backend,
 API, database, accounts, or tracking.
 
+## Recently shipped
+
+- [x] **Screenshots** committed to `assets/screenshots/` and wired into the README.
+- [x] **Difficulty modes** — Training / Analyst / Incident Commander (v0.3.0).
+- [x] **Visual feedback** — hit flashes, death bursts, telemetry pops, damage
+      flash, screen shake (v0.3.0).
+- [x] **Threat Intel & Defensive Tools** in-game guides (v0.3.0).
+- [x] **Upgrade rarity** badges + richer incident report with per-type breakdown (v0.3.0).
+
 ## Near term (small, safe additions)
 
-- [ ] **Screenshots** committed to `assets/screenshots/` and wired into the README.
 - [ ] **Sound & music** — short Web Audio blips for hits/level-ups/game-over,
       with a mute toggle (respect autoplay rules; default off until first input).
 - [ ] **Floating combat text** — small "+telemetry" / damage popups.
 - [ ] **Settings panel** — toggle screen shake, reduce-motion mode, mute.
-- [ ] **Difficulty modes** — Analyst (easier), Responder (default),
-      Hardened (faster scaling).
+- [ ] **Per-difficulty best scores** — track a separate best for each mode.
 
 ## Mid term (gameplay depth)
 

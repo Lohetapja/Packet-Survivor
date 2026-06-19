@@ -41,12 +41,14 @@ https://lohetapja.github.io/Packet-Survivor/
 ## Features
 
 - 🎮 Top-down arena survival with smooth WASD / arrow-key movement
+- 🎚️ Three **difficulty modes** — Training, Analyst, Incident Commander
 - 🌊 Seven distinct threat types introduced one wave at a time
 - 🧰 Eight defensive tools that **auto-activate** — detection, containment & recovery
-- ⬆️ Level-up system with a 3-card upgrade chooser (New Tool / Upgrade / Passive)
+- ⬆️ Level-up chooser with **type and rarity** badges (New Tool / Upgrade / Passive · Common / Uncommon / Rare)
+- ✨ Lightweight game feel: hit flashes, death bursts, telemetry pops, damage flash, screen shake
+- 📚 In-game **Threat Intel** and **Defensive Tools** guides — learn through play, no quiz
 - 📈 Difficulty scaling: easy early waves, genuinely stressful mid waves
-- 🟢 Telemetry pickups with a magnet radius
-- 🧾 Post-run **incident report** (most effective defense, highest-risk threat, recommendation)
+- 🧾 Post-run **incident report** — threats contained, telemetry, most effective defense, highest-risk threat, per-type breakdown, and a defensive recommendation
 - 💾 Best score saved to `localStorage` — fully offline
 - 🎛️ Pause / Resume / Restart / Main Menu flow
 - 🌑 Dark SOC-dashboard aesthetic, responsive layout
@@ -62,6 +64,21 @@ No mouse aiming required — all tools auto-target. Defeated threats drop
 **telemetry**; collect it to level up and choose 1 of 3 upgrades. Every 24 seconds
 a harder wave begins. At 0 health the network is breached and you get an incident
 report.
+
+## Difficulty Modes
+
+Pick a mode on the main menu before starting. It's a simple set of multipliers (in
+`src/js/config.js`) on threat health, speed, contact damage, scaling rate, and spawn
+pace. Your choice is shown on the HUD and in the incident report.
+
+| Mode | Feel |
+| ---- | ---- |
+| **Training** | Forgiving — gentler threats, slower scaling. Learn the ropes. |
+| **Analyst** | Balanced — the standard experience. |
+| **Incident Commander** | Relentless — tougher threats, faster scaling, constant pressure. |
+
+The **How to Play** screen also includes **Threat Intel** and **Defensive Tools**
+panels: a short, defensive, no-quiz explainer for every threat and tool.
 
 ## Defensive Tools
 
@@ -133,8 +150,8 @@ No build, bundler, or CI is required — the files are served exactly as they ar
 ├── LICENSE
 ├── src/
 │   ├── css/style.css          # dark SOC-dashboard theme
-│   └── js/                     # config, storage, enemies, tools, upgrades,
-│                               #   waves, player, ui, game (loaded in order)
+│   └── js/                     # config, storage, effects, enemies, tools,
+│                               #   upgrades, waves, player, ui, game (in order)
 ├── assets/
 │   ├── screenshots/           # README screenshots
 │   └── icons/                 # optional custom icons (game uses emoji by default)

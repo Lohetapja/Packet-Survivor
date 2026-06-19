@@ -30,11 +30,14 @@
     return t;
   }
 
-  // Per-wave scaling multipliers.
-  const healthMul = () => 1 + (CDL.S.wave - 1) * WC.healthScale;
-  const speedMul  = () => Math.min(WC.speedCap, 1 + (CDL.S.wave - 1) * WC.speedScale);
-  const damageMul = () => 1 + (CDL.S.wave - 1) * WC.damageScale;
-  const spawnInterval = () => Math.max(WC.spawnMin, WC.spawnBase - CDL.S.wave * WC.spawnStep);
+  // Per-wave scaling multipliers, modulated by the chosen difficulty:
+  //   d.scale stretches/compresses the per-wave ramp,
+  //   d.hp/speed/damage flat-scale base threat stats,
+  //   d.spawn scales the spawn interval (>1 = slower = easier).
+  const healthMul = () => CDL.diff().hp * (1 + (CDL.S.wave - 1) * WC.healthScale * CDL.diff().scale);
+  const speedMul  = () => CDL.diff().speed * Math.min(WC.speedCap, 1 + (CDL.S.wave - 1) * WC.speedScale * CDL.diff().scale);
+  const damageMul = () => CDL.diff().damage * (1 + (CDL.S.wave - 1) * WC.damageScale * CDL.diff().scale);
+  const spawnInterval = () => Math.max(WC.spawnMin, WC.spawnBase - CDL.S.wave * WC.spawnStep) * CDL.diff().spawn;
   const spawnBatch = () => 1 + Math.floor(Math.max(0, CDL.S.wave - WC.batchAfter) / 2);
 
   function spawnEnemy(type) {
@@ -60,6 +63,7 @@
       color: def.color, shape: def.shape,
       vx: 0, vy: 0,       // knockback velocity
       shieldCd: 0,        // per-enemy cooldown vs MFA shield
+      hitFlash: 0,        // brief white flash when struck
       wob: Math.random() * 6.28,
     });
   }
@@ -95,9 +99,12 @@
     };
   }
 
-  // Advance to the next wave: heal via Backup Restore, then announce.
+  // Advance to the next wave: announce the wave just survived, heal via
+  // Backup Restore, then announce the incoming wave.
   function nextWave() {
     const S = CDL.S;
+    CDL.UI.feedMsg("Wave " + S.wave + " contained — telemetry stabilized.", "good", 0);
+
     S.wave++;
     S.waveTimer = WC.duration;
 

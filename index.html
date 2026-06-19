@@ -19,6 +19,16 @@
           <p class="tagline">A defensive packet inside a compromised network. Survive the breach.</p>
         </div>
 
+        <div class="difficulty-select">
+          <span class="diff-label">SELECT DIFFICULTY</span>
+          <div class="diff-options">
+            <button class="diff-btn" data-diff="training">Training</button>
+            <button class="diff-btn is-active" data-diff="analyst">Analyst</button>
+            <button class="diff-btn" data-diff="incident">Incident Commander</button>
+          </div>
+          <p class="diff-desc" id="diff-desc">Balanced challenge. The standard Packet Survivor experience.</p>
+        </div>
+
         <div class="menu-buttons">
           <button id="btn-start" class="btn btn-primary">▶ Start Game</button>
           <button id="btn-howto" class="btn">How to Play</button>
@@ -75,6 +85,12 @@
           </div>
         </div>
 
+        <h3 class="howto-section">🦠 Threat Intel</h3>
+        <div id="threat-intel-list" class="intel-grid"></div>
+
+        <h3 class="howto-section">🧰 Defensive Tools</h3>
+        <div id="tools-list" class="tools-grid"></div>
+
         <button id="btn-howto-back" class="btn">◀ Back to Menu</button>
       </div>
     </section>
@@ -101,12 +117,18 @@
           <div class="stat"><span class="stat-k">BEST</span><span id="stat-best" class="stat-v">0</span></div>
         </div>
 
+        <div class="hud-mode">
+          <span class="hud-label">MODE</span>
+          <span id="hud-difficulty" class="hud-mode-v">Analyst</span>
+        </div>
+
         <button id="btn-pause" class="btn btn-small" title="Pause (Space)">⏸ Pause</button>
       </div>
 
       <div class="stage">
         <canvas id="game-canvas" width="1000" height="620"></canvas>
 
+        <div id="damage-flash" class="damage-flash"></div>
         <div id="event-feed" class="event-feed"></div>
         <div id="wave-banner" class="wave-banner hidden"></div>
 
@@ -150,9 +172,17 @@
         <!-- Post-run incident report -->
         <div class="incident">
           <div class="incident-title">▣ INCIDENT REPORT</div>
+          <div class="incident-row"><span class="ir-k">Difficulty</span><span id="go-difficulty" class="ir-v">—</span></div>
           <div class="incident-row"><span class="ir-k">Threats contained</span><span id="go-threats" class="ir-v">0</span></div>
+          <div class="incident-row"><span class="ir-k">Telemetry collected</span><span id="go-telemetry" class="ir-v">0</span></div>
           <div class="incident-row"><span class="ir-k">Most effective defense</span><span id="go-tool" class="ir-v">—</span></div>
           <div class="incident-row"><span class="ir-k">Highest-risk threat</span><span id="go-threat" class="ir-v">—</span></div>
+
+          <div class="incident-breakdown">
+            <div class="ibd-title">THREATS CONTAINED BY TYPE</div>
+            <div id="go-breakdown" class="ibd-list"></div>
+          </div>
+
           <div class="incident-reco"><strong>Defensive recommendation:</strong> <span id="go-reco">—</span></div>
         </div>
 
@@ -171,6 +201,7 @@
        file:// and GitHub Pages). See src/js/config.js for the why. -->
   <script src="src/js/config.js"></script>
   <script src="src/js/storage.js"></script>
+  <script src="src/js/effects.js"></script>
   <script src="src/js/enemies.js"></script>
   <script src="src/js/tools.js"></script>
   <script src="src/js/upgrades.js"></script>

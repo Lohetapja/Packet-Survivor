@@ -18,7 +18,7 @@ static server, and GitHub Pages — with **no build step**.
 Trade-off: load order matters. `index.html` loads files in dependency order:
 
 ```
-config → storage → enemies → tools → upgrades → waves → player → ui → game
+config → storage → effects → enemies → tools → upgrades → waves → player → ui → game
 ```
 
 `config.js` must be first (it creates `window.CDL`, `CDL.CONFIG`, and `CDL.S`).
@@ -39,15 +39,16 @@ config → storage → enemies → tools → upgrades → waves → player → u
 
 | File | Owns |
 | ---- | ---- |
-| `config.js` | namespace, `CONFIG` tunables, `CDL.S` state, math helpers, `freshStats()` |
+| `config.js` | namespace, `CONFIG` tunables (incl. `difficulties`), `CDL.S` state, `CDL.diff()`, math helpers, `freshStats()` |
 | `storage.js` | `localStorage` best-score load/save (fails soft) |
-| `enemies.js` | `ENEMY_TYPES`, `damageEnemy()`, enemy movement/AI, enemy rendering, `nearest()` |
-| `tools.js` | `freshTools()`, tool auto-activation, projectiles, effects, tool rendering, `TOOL_META` |
-| `upgrades.js` | `UPGRADES` pool, tag metadata, `buildChoices()` |
-| `waves.js` | scaling multipliers, `allowedTypes()`, spawning, `nextWave()`, banner text |
-| `player.js` | `create()`, movement, `gainXp()`, `hit()`, pickups, player rendering |
-| `ui.js` | **all** DOM: HUD, feed, banners, overlays, upgrade cards, incident report |
-| `game.js` | input, state machine, main loop, run setup, level-up flow, incident report, button wiring |
+| `effects.js` | `CDL.Effects` — cosmetic particle pool (death bursts, telemetry pops), capped |
+| `enemies.js` | `ENEMY_TYPES` (+ intel/`reco` data), `THREAT_ORDER`, `damageEnemy()` (kill/type tally, hit-flash, death burst), AI, rendering, `nearest()` |
+| `tools.js` | `freshTools()`, tool auto-activation, projectiles, tool rendering, `TOOL_META`, `TOOL_INFO`/`TOOL_ORDER` (guide data) |
+| `upgrades.js` | `UPGRADES` pool (type + `rarity`), tag/rarity metadata, rarity-weighted `buildChoices()` |
+| `waves.js` | difficulty-aware scaling multipliers, `allowedTypes()`, spawning, `nextWave()`, banner text |
+| `player.js` | `create()`, movement, `gainXp()` (telemetry tally), `hit()` (damage flash), pickups, rendering |
+| `ui.js` | **all** DOM: HUD (+difficulty), feed, banners, damage flash, difficulty selector, upgrade cards, incident report, Threat Intel & Tools guides |
+| `game.js` | input, state machine, main loop, run setup, level-up flow, incident report build, button wiring |
 
 `ui.js` is the only module that touches the DOM. Game logic talks to the screen
 exclusively through `CDL.UI`.
@@ -70,9 +71,11 @@ exclusively through `CDL.UI`.
 
 ### Add a new threat
 1. Add an entry to `CDL.ENEMY_TYPES` in `enemies.js` (stats, `shape`, `color`,
-   `label`, and a defensive `tip` for the incident report).
-2. If it needs a new silhouette, add a `case` to `drawEnemy()`'s `switch`.
-3. Make it spawn by editing `allowedTypes(wave)` in `waves.js`.
+   `label`, plus the info fields `behavior`, `danger`, `tip`, and `reco`).
+2. Add the key to `CDL.THREAT_ORDER` so it shows in the Threat Intel guide and
+   the incident-report breakdown.
+3. If it needs a new silhouette, add a `case` to `drawEnemy()`'s `switch`.
+4. Make it spawn by editing `allowedTypes(wave)` in `waves.js`.
 
 ### Add a new tool
 1. Add its default state to `freshTools()` in `tools.js`.
@@ -80,21 +83,28 @@ exclusively through `CDL.UI`.
    visuals to the `draw*` helpers.
 3. Add an **unlock** card and **upgrade** cards to `CDL.UPGRADES` in
    `upgrades.js` (use `available()` to gate them).
-4. Optionally add a display name to `CDL.TOOL_META` so it can be credited in the
-   incident report.
+4. Add a display name to `CDL.TOOL_META` (incident-report credit) and an entry
+   to `CDL.TOOL_INFO` + `CDL.TOOL_ORDER` (the Defensive Tools guide).
 
 ### Add an upgrade
 Append an object to `CDL.UPGRADES` with `id`, `name`, `icon`, `kind`
-(`unlock` | `upgrade` | `passive`), `desc`, `available(tools)`, and
-`apply(player, tools)`.
+(`unlock` | `upgrade` | `passive`), `rarity` (`common` | `uncommon` | `rare`),
+`desc`, `available(tools)`, and `apply(player, tools)`.
 
 ### Tune difficulty
 Edit `CDL.CONFIG` in `config.js`:
+- `difficulties` — the Training / Analyst / Incident Commander presets
+  (`hp`, `speed`, `damage`, `scale`, `spawn` multipliers).
 - `player.invuln` — i-frame length after a hit.
 - `waves.healthScale` / `speedScale` / `speedCap` / `damageScale` — per-wave ramp.
 - `waves.spawnBase` / `spawnStep` / `spawnMin` / `batchAfter` — spawn pacing.
 - `waves.duration` — seconds per wave.
 - `xp.base` / `xp.growth` — level-up pacing.
+
+### Add visual feedback
+Use `CDL.Effects.death(x, y, color)` / `CDL.Effects.pickup(x, y)` for particles,
+set `e.hitFlash` on a threat for a flash, or `CDL.UI.flashDamage()` for the
+player vignette. Keep it cheap — the particle pool is capped in `effects.js`.
 
 ## Testing tips
 

@@ -50,6 +50,7 @@
       const S = CDL.S, p = S.player;
       p.xp += amount;
       p.score += amount; // telemetry also nudges score
+      S.stats.telemetry += amount;
       while (p.xp >= p.xpToNext) {
         p.xp -= p.xpToNext;
         p.level++;
@@ -63,7 +64,9 @@
       const S = CDL.S, p = S.player;
       p.hp -= e.damage;
       p.invuln = CONFIG.player.invuln;
-      S.shake = 8;
+      // Shake scales a little with the size of the hit (kept subtle).
+      S.shake = Math.min(12, 6 + e.damage * 0.18);
+      CDL.UI.flashDamage();
 
       // Track who hurt us most, for the incident report.
       S.stats.dmgByThreat[e.type] = (S.stats.dmgByThreat[e.type] || 0) + e.damage;
@@ -101,6 +104,7 @@
         }
         if (d <= cr) {
           CDL.Player.gainXp(g.value);
+          CDL.Effects.pickup(g.x, g.y);
           S.pickups.splice(i, 1);
         }
       }

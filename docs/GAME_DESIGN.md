@@ -66,10 +66,11 @@ Tools are split between **active** (auto-firing effects) and **passive**
 
 - **Telemetry → XP.** Pickups dropped by defeated threats fill the level bar.
   XP to next level grows geometrically (`base 10 × 1.22^(level-1)`).
-- **Level-up chooser.** Three random valid cards, each tagged:
-  - **New Tool** — unlock a tool you don't own yet.
-  - **Upgrade** — improve an owned tool.
-  - **Passive** — always-on stat boost or safety net.
+- **Level-up chooser.** Three valid cards, each tagged by **type** and **rarity**:
+  - Type — **New Tool** (unlock), **Upgrade** (improve an owned tool), or
+    **Passive** (always-on stat / safety net).
+  - Rarity — **Common / Uncommon / Rare**, which lightly weights the draw so
+    rares feel like a find (cosmetic-strength weighting, not power tiers).
 - A card is only offered when it makes sense (e.g. a tool's upgrades appear only
   after it's unlocked).
 
@@ -96,12 +97,39 @@ Every new wave nudges four levers (all in `src/js/config.js → waves`):
 **Backup Restore** heals a modest flat amount per wave: a meaningful safety net
 that buys time but cannot outpace late-wave damage, so death stays inevitable.
 
+## Difficulty modes
+
+Chosen on the menu, layered on top of the per-wave scaling above as simple
+multipliers (`src/js/config.js → difficulties`):
+
+| Mode | Threat HP | Speed | Damage | Ramp | Spawn pace |
+| ---- | --------- | ----- | ------ | ---- | ---------- |
+| **Training** | ×0.80 | ×0.90 | ×0.70 | slower (×0.65) | slower |
+| **Analyst** (default) | ×1.00 | ×1.00 | ×1.00 | normal | normal |
+| **Incident Commander** | ×1.25 | ×1.10 | ×1.30 | faster (×1.35) | faster |
+
+The selected mode shows on the HUD and in the post-run incident report.
+
+## Incident report
+
+When the run ends, an abstract SOC-style "incident report" recaps it: final
+score, wave/level reached, threats contained, telemetry collected, difficulty,
+the most effective defensive tool, the highest-risk threat, a per-type breakdown
+of threats contained, and a defensive recommendation keyed to whichever threat
+dealt the most damage (e.g. Ransomware → "Improve endpoint containment and backup
+recovery coverage."). This mirrors a real defender habit: review, find the
+biggest risk, note an improvement.
+
 ## Tone & art direction
 
 - Dark navy SOC dashboard; cyan = player/defense, warm red/orange = threats,
   green = telemetry.
 - Original geometric shapes only — no third-party or copyrighted assets, and no
   resemblance to any specific commercial game's characters, names, or art.
+- **Game feel is kept subtle:** hit flashes, small death bursts, telemetry pops,
+  a brief red damage vignette, and light screen shake — readable, never noisy.
+  Each threat also has a distinct silhouette + a small identifying mark for
+  fast recognition.
 
 ## Content safety
 

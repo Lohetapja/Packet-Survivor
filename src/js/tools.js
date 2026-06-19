@@ -30,6 +30,37 @@
     backup: "Backup Restore",
   };
 
+  // Info for the "Defensive Tools" guide on the How to Play screen.
+  //   icon / name / behavior (what it does in-game) / explain (defensive idea)
+  // Stable display order in CDL.TOOL_ORDER.
+  CDL.TOOL_ORDER = ["firewall", "edr", "siem", "dns", "mfa", "honeypot", "quarantine", "backup"];
+  CDL.TOOL_INFO = {
+    firewall:   { icon: "🔥", name: "Firewall Pulse",
+                  behavior: "Auto-pulses nearby, damaging and shoving threats back.",
+                  explain: "Filters and blocks hostile traffic at the perimeter." },
+    edr:        { icon: "✳️", name: "EDR Burst",
+                  behavior: "Fires tracking bursts; extra-strong vs Malware & Ransomware.",
+                  explain: "Endpoint Detection & Response finds and removes threats on hosts." },
+    siem:       { icon: "📡", name: "SIEM Scanner",
+                  behavior: "A scan ring damages threats and grants bonus telemetry.",
+                  explain: "Security analytics correlate logs to surface suspicious activity." },
+    dns:        { icon: "🕳️", name: "DNS Sinkhole Field",
+                  behavior: "Drops a zone that slows threats caught inside it.",
+                  explain: "Redirects malicious domain lookups into a harmless sinkhole." },
+    mfa:        { icon: "🛡️", name: "MFA Shield",
+                  behavior: "Rotating shields block and damage threats that touch you.",
+                  explain: "Multi-factor auth stops stolen credentials from being enough." },
+    honeypot:   { icon: "🍯", name: "Honeypot Decoy",
+                  behavior: "Deploys a lure that distracts threats away from you.",
+                  explain: "A decoy system draws attackers away from real assets." },
+    quarantine: { icon: "🎯", name: "Quarantine Beam",
+                  behavior: "Locks the closest threat with steady damage over time.",
+                  explain: "Isolates a compromised element so it can't spread." },
+    backup:     { icon: "💾", name: "Backup Restore",
+                  behavior: "Passively restores health after each wave you survive.",
+                  explain: "Reliable backups let you recover after an incident." },
+  };
+
   // Default tool loadout. Player starts with Firewall Pulse only.
   CDL.freshTools = function () {
     return {
