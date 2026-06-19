@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cyber Defense Lab: Packet Survivor</title>
+  <link rel="stylesheet" href="src/css/style.css" />
+</head>
+<body>
+  <div id="app">
+
+    <!-- ===================== MAIN MENU ===================== -->
+    <section id="screen-menu" class="screen">
+      <div class="panel menu-panel">
+        <div class="brand">
+          <div class="brand-mark">◢◤</div>
+          <h1>Cyber Defense Lab</h1>
+          <h2>Packet Survivor</h2>
+          <p class="tagline">A defensive packet inside a compromised network. Survive the breach.</p>
+        </div>
+
+        <div class="menu-buttons">
+          <button id="btn-start" class="btn btn-primary">▶ Start Game</button>
+          <button id="btn-howto" class="btn">How to Play</button>
+          <button id="btn-reset" class="btn btn-ghost">Reset Best Score</button>
+        </div>
+
+        <div class="menu-best">
+          Best Score: <span id="menu-best">0</span>
+        </div>
+        <p class="footnote">Runs fully offline. No login, no tracking. Best score stored locally.</p>
+      </div>
+    </section>
+
+    <!-- ===================== HOW TO PLAY ===================== -->
+    <section id="screen-howto" class="screen hidden">
+      <div class="panel howto-panel">
+        <h2>How to Play</h2>
+        <p class="howto-intro">
+          You are a <strong>Defender Packet</strong> inside a compromised company network.
+          Move around, avoid threats, collect telemetry, and upgrade your defensive tools.
+          Survive as many waves as possible.
+        </p>
+
+        <div class="howto-grid">
+          <div class="howto-card">
+            <div class="howto-icon">⌨️</div>
+            <h3>Move</h3>
+            <p>Use <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or the arrow keys.</p>
+          </div>
+          <div class="howto-card">
+            <div class="howto-icon">🛡️</div>
+            <h3>Defend</h3>
+            <p>Your tools auto-activate. No aiming needed — keep moving and let them work.</p>
+          </div>
+          <div class="howto-card">
+            <div class="howto-icon">🟢</div>
+            <h3>Collect</h3>
+            <p>Defeated threats drop <strong>telemetry</strong>. Gather it to fill your level bar.</p>
+          </div>
+          <div class="howto-card">
+            <div class="howto-icon">⬆️</div>
+            <h3>Upgrade</h3>
+            <p>Each level-up, choose 1 of 3 defensive upgrades or unlock a new tool.</p>
+          </div>
+          <div class="howto-card">
+            <div class="howto-icon">⏸️</div>
+            <h3>Pause</h3>
+            <p>Press <kbd>Space</kbd> or the pause button any time.</p>
+          </div>
+          <div class="howto-card">
+            <div class="howto-icon">⚠️</div>
+            <h3>Survive</h3>
+            <p>Threats damage you on contact. Reach 0 health and the network is breached.</p>
+          </div>
+        </div>
+
+        <button id="btn-howto-back" class="btn">◀ Back to Menu</button>
+      </div>
+    </section>
+
+    <!-- ===================== GAME SCREEN ===================== -->
+    <section id="screen-game" class="screen hidden">
+      <div class="topbar">
+        <div class="hud-block hud-health">
+          <span class="hud-label">HEALTH</span>
+          <div class="bar bar-health"><div id="hp-fill" class="bar-fill"></div></div>
+          <span id="hp-text" class="hud-value">100 / 100</span>
+        </div>
+
+        <div class="hud-block hud-xp">
+          <span class="hud-label">TELEMETRY</span>
+          <div class="bar bar-xp"><div id="xp-fill" class="bar-fill"></div></div>
+          <span id="xp-text" class="hud-value">0 / 10</span>
+        </div>
+
+        <div class="hud-stats">
+          <div class="stat"><span class="stat-k">LVL</span><span id="stat-level" class="stat-v">1</span></div>
+          <div class="stat"><span class="stat-k">WAVE</span><span id="stat-wave" class="stat-v">1</span></div>
+          <div class="stat"><span class="stat-k">SCORE</span><span id="stat-score" class="stat-v">0</span></div>
+          <div class="stat"><span class="stat-k">BEST</span><span id="stat-best" class="stat-v">0</span></div>
+        </div>
+
+        <button id="btn-pause" class="btn btn-small" title="Pause (Space)">⏸ Pause</button>
+      </div>
+
+      <div class="stage">
+        <canvas id="game-canvas" width="1000" height="620"></canvas>
+
+        <div id="event-feed" class="event-feed"></div>
+        <div id="wave-banner" class="wave-banner hidden"></div>
+
+        <!-- Pause overlay -->
+        <div id="overlay-pause" class="overlay hidden">
+          <div class="panel overlay-panel">
+            <h2>Paused</h2>
+            <p class="muted">Network monitoring suspended.</p>
+            <div class="overlay-buttons">
+              <button id="btn-resume" class="btn btn-primary">▶ Resume</button>
+              <button id="btn-pause-restart" class="btn">↻ Restart</button>
+              <button id="btn-quit" class="btn btn-ghost">Quit to Menu</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Level-up / upgrade overlay -->
+        <div id="overlay-levelup" class="overlay hidden">
+          <div class="panel overlay-panel levelup-panel">
+            <h2>Level <span id="levelup-level">2</span> — Choose an Upgrade</h2>
+            <p class="muted">Reinforce your defenses. Select one.</p>
+            <div id="levelup-cards" class="cards"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== GAME OVER ===================== -->
+    <section id="screen-gameover" class="screen hidden">
+      <div class="panel gameover-panel">
+        <h2 class="breach">⚠ Network Breached</h2>
+        <p class="muted">The Defender Packet was overrun. Threats contained as long as possible.</p>
+
+        <div class="result-grid">
+          <div class="result"><span class="result-k">Final Score</span><span id="go-score" class="result-v">0</span></div>
+          <div class="result"><span class="result-k">Wave Reached</span><span id="go-wave" class="result-v">1</span></div>
+          <div class="result"><span class="result-k">Level Reached</span><span id="go-level" class="result-v">1</span></div>
+          <div class="result"><span class="result-k">Best Score</span><span id="go-best" class="result-v">0</span></div>
+        </div>
+
+        <!-- Post-run incident report -->
+        <div class="incident">
+          <div class="incident-title">▣ INCIDENT REPORT</div>
+          <div class="incident-row"><span class="ir-k">Threats contained</span><span id="go-threats" class="ir-v">0</span></div>
+          <div class="incident-row"><span class="ir-k">Most effective defense</span><span id="go-tool" class="ir-v">—</span></div>
+          <div class="incident-row"><span class="ir-k">Highest-risk threat</span><span id="go-threat" class="ir-v">—</span></div>
+          <div class="incident-reco"><strong>Defensive recommendation:</strong> <span id="go-reco">—</span></div>
+        </div>
+
+        <div id="go-newbest" class="newbest hidden">★ New Best Score! ★</div>
+
+        <div class="overlay-buttons">
+          <button id="btn-restart" class="btn btn-primary">↻ Restart</button>
+          <button id="btn-menu" class="btn btn-ghost">Main Menu</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Classic scripts in dependency order (no build step; works on
+       file:// and GitHub Pages). See src/js/config.js for the why. -->
+  <script src="src/js/config.js"></script>
+  <script src="src/js/storage.js"></script>
+  <script src="src/js/enemies.js"></script>
+  <script src="src/js/tools.js"></script>
+  <script src="src/js/upgrades.js"></script>
+  <script src="src/js/waves.js"></script>
+  <script src="src/js/player.js"></script>
+  <script src="src/js/ui.js"></script>
+  <script src="src/js/game.js"></script>
+</body>
+</html>
