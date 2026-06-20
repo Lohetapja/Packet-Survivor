@@ -47,11 +47,14 @@ https://lohetapja.github.io/Packet-Survivor/
 - 🎯 **Choose your starter**, then build a **loadout of up to 6** tools — with visible damage / cooldown numbers on every card
 - 🧬 High **build variety** — every run combines different archetypes
 - ⬆️ Level-up chooser with **type and rarity** badges (New Tool / Upgrade / Passive · Common / Uncommon / Rare)
+- 🛰️ **SOC Hub** home base — a progress dashboard linking Tool Library, Threat Intel Database, Achievements, Lab Room & Incident Archive
+- 🔓 **Persistent unlocks** — earn 15 more tools through play, plus **14 achievements** and a **50-item Cyber Defense Lab Room**
+- 📅 **Daily Simulations** — a 7-day cyber-ops rotation with unique modifiers (no backend; uses your local day of week)
 - ✨ Lightweight game feel: hit flashes, death bursts, telemetry pops, damage flash, screen shake
 - 📚 In-game **Threat Intel** and **Defensive Tools** guides — learn through play, no quiz
 - 📈 Difficulty scaling: easy early waves, genuinely stressful mid waves
 - 🧾 Post-run **incident report** — threats contained, telemetry, most effective defense, highest-risk threat, per-type breakdown, and a defensive recommendation
-- 💾 Best score saved to `localStorage` — fully offline
+- 💾 All progress saved locally in `localStorage` — **no backend, no login, no tracking**
 - 🎛️ Pause / Resume / Restart / Main Menu flow
 - 🌑 Dark SOC-dashboard aesthetic, responsive layout
 
@@ -82,6 +85,31 @@ pace. Your choice is shown on the HUD and in the incident report.
 
 The **How to Play** screen also includes **Threat Intel** and **Defensive Tools**
 panels: a short, defensive, no-quiz explainer for every threat and tool.
+
+## Progression & SOC Hub
+
+Every run feeds a local progression save (`localStorage`, key
+`packetSurvivorSave`). The **SOC Hub** (from the main menu) is your home base:
+
+- **Tool Library** — collection view of all 22 tools with locked/unlocked status,
+  stats, role, and unlock conditions.
+- **Threat Intel Database** — every threat you've discovered, with danger rating,
+  times contained, damage caused, and recommended defenses.
+- **Achievements** — 14 milestones with progress bars.
+- **Cyber Defense Lab Room** — 50 unlockable items (SOC Desk, Wall Board, Tool
+  Cabinet, Threat Intel, Trophies) that fill in as you play.
+- **Incident Archive** — your last 10 run reports.
+
+**Unlocks** add *variety, not raw power*: you start with 7 damage tools and earn
+the other 15 by reaching waves, containing threats, and collecting telemetry.
+Locked tools never appear in the starting choice or level-up pool until unlocked.
+
+**Daily Simulations** rotate by real-world day of week (entirely offline) — e.g.
+*Patch Tuesday* (more malware, Patch Wave buffed), *Backup Drill* (more ransomware,
+Backup Restore stronger), *Threat Hunt* (fewer, stronger beacons). A briefing shows
+the modifiers before you start; completions are tracked locally.
+
+Use **Reset Progress** on the menu to wipe the save (it asks for confirmation first).
 
 ## Defensive Tools
 
@@ -157,8 +185,9 @@ No build, bundler, or CI is required — the files are served exactly as they ar
 ├── LICENSE
 ├── src/
 │   ├── css/style.css          # dark SOC-dashboard theme
-│   └── js/                     # config, storage, effects, abilities, enemies,
-│                               #   tools, upgrades, waves, player, ui, game (in order)
+│   └── js/                     # config, storage, save, effects, abilities,
+│                               #   enemies, progression, tools, upgrades, waves,
+│                               #   player, ui, hub, game (loaded in order)
 ├── assets/
 │   ├── screenshots/           # README screenshots
 │   └── icons/                 # optional custom icons (game uses emoji by default)

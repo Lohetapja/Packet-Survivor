@@ -245,17 +245,25 @@
   };
 
   // Grant an ability to the player (respects the active-tool cap).
+  // Applies the active Daily Simulation's tool buff, if any.
   CDL.grantTool = function (p, id) {
     if (p.tools[id]) return false;
     if (p.toolOrder.length >= CDL.CONFIG.maxTools) return false;
-    p.tools[id] = CDL.createToolState(id);
+    const st = CDL.createToolState(id);
+    const buffs = CDL.S.dailyMods.toolBuffs;
+    if (buffs && buffs[id]) {
+      if (st.damage != null) st.damage = Math.round(st.damage * buffs[id]);
+      if (st.dps != null) st.dps = Math.round(st.dps * buffs[id]);
+    }
+    p.tools[id] = st;
     p.toolOrder.push(id);
     return true;
   };
 
-  // 3 distinct random starter abilities (always damage-dealing).
+  // 3 distinct random starter abilities — only ones the player has unlocked.
   CDL.starterChoices = function () {
-    const pool = CDL.ABILITIES.filter((a) => a.starter).slice();
+    const un = CDL.Save.data.unlockedTools;
+    const pool = CDL.ABILITIES.filter((a) => a.starter && un.indexOf(a.id) !== -1).slice();
     CDL.shuffle(pool);
     return pool.slice(0, 3);
   };

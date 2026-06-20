@@ -106,9 +106,10 @@
     const max = CDL.CONFIG.maxTools, total = CDL.CONFIG.levelupCards;
     const cards = [];
 
-    // 1 new-tool card while slots are free and un-owned tools remain.
+    // 1 new-tool card while slots are free and unlocked un-owned tools remain.
     if (p.toolOrder.length < max) {
-      const unowned = CDL.ABILITIES.filter((a) => !p.tools[a.id]);
+      const un = CDL.Save.data.unlockedTools;
+      const unowned = CDL.ABILITIES.filter((a) => !p.tools[a.id] && un.indexOf(a.id) !== -1);
       if (unowned.length) cards.push(weaponCard(unowned[(Math.random() * unowned.length) | 0]));
     }
 

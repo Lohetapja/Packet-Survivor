@@ -17,6 +17,9 @@ API, database, accounts, or tracking.
 - [x] **Loadout system** — starting-tool choice, 6-tool cap, loadout HUD,
       data-driven ability registry, 22 damage tools, numbers on cards, bigger
       arena, quieter event feed (v0.5.0).
+- [x] **SOC Hub & progression** — localStorage save, persistent unlocks, Tool
+      Library, Threat Intel Database, 14 achievements, 50-item Lab Room, 7-day
+      Daily Simulation rotation, incident archive (v0.6.0).
 
 ## Near term (small, safe additions)
 
@@ -28,12 +31,11 @@ API, database, accounts, or tracking.
 
 ## Mid term (gameplay depth)
 
-- [ ] **A few more tools** from the original wishlist (Credential Lockout
-      control burst, Memory Scanner beam) to round out the roster.
+- [ ] **A few more tools** (e.g. Credential Lockout control burst) to round out the roster.
 - [ ] **Synergy upgrades** — cards that combine two owned tools.
 - [ ] **More threats** + a periodic **"Intrusion" mini-boss** every few waves.
 - [ ] **Tool-replacement system** — swap a tool once the 6-slot loadout is full.
-- [ ] **Run summary history** — last N incident reports kept in `localStorage`.
+- [ ] **More lab room polish** — a visual room layout instead of the grid list.
 
 ## Long term (polish & reach)
 

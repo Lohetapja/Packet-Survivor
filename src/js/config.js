@@ -75,8 +75,11 @@ window.CDL = window.CDL || {};
      One persistent object. newGame() MUTATES these fields (it never
      replaces CDL.S), so module references stay valid across restarts. */
   CDL.S = {
-    state: "menu",           // menu | howto | playing | paused | levelup | gameover
+    state: "menu",           // menu | howto | starttool | playing | paused | levelup | gameover
     difficulty: "analyst",   // training | analyst | incident (chosen on the menu)
+    mode: "normal",          // normal | daily
+    daily: null,             // active daily-simulation def (daily mode only)
+    dailyMods: {},           // active modifiers ({} in normal mode)
     player: null,
     enemies: [], projectiles: [], pickups: [], pulses: [], fields: [], decoys: [], particles: [],
     mines: [], walls: [],
@@ -110,5 +113,7 @@ window.CDL = window.CDL || {};
     killsByTool: {},     // source -> count   (for "most effective tool")
     killsByType: {},     // enemy type -> count   (threat breakdown)
     dmgByThreat: {},     // enemy type -> total damage dealt to player
+    encounteredThreats: {}, // enemy type -> true (for Threat Intel discovery)
+    firstWaveByType: {}, // enemy type -> wave first seen this run
   });
 })(window.CDL);

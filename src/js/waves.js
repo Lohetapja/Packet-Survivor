@@ -37,7 +37,7 @@
   const healthMul = () => CDL.diff().hp * (1 + (CDL.S.wave - 1) * WC.healthScale * CDL.diff().scale);
   const speedMul  = () => CDL.diff().speed * Math.min(WC.speedCap, 1 + (CDL.S.wave - 1) * WC.speedScale * CDL.diff().scale);
   const damageMul = () => CDL.diff().damage * (1 + (CDL.S.wave - 1) * WC.damageScale * CDL.diff().scale);
-  const spawnInterval = () => Math.max(WC.spawnMin, WC.spawnBase - CDL.S.wave * WC.spawnStep) * CDL.diff().spawn;
+  const spawnInterval = () => Math.max(WC.spawnMin, WC.spawnBase - CDL.S.wave * WC.spawnStep) * CDL.diff().spawn / (CDL.S.dailyMods.spawnMult || 1);
   const spawnBatch = () => 1 + Math.floor(Math.max(0, CDL.S.wave - WC.batchAfter) / 2);
 
   function spawnEnemy(type) {
@@ -53,7 +53,15 @@
     else if (edge === 2) { x = rand(0, W); y = H + 30; }
     else { x = -30; y = rand(0, H); }
 
-    const hp = Math.round(def.hp * healthMul());
+    // Daily Simulation HP modifiers (default 1 in normal mode).
+    const md = S.dailyMods;
+    const hpMul = (md.enemyHp || 1) * ((md.enemyHpFor && md.enemyHpFor[type]) || 1);
+    const hp = Math.round(def.hp * healthMul() * hpMul);
+
+    // Discovery / first-seen tracking for the Threat Intel database.
+    if (!S.stats.firstWaveByType[type]) S.stats.firstWaveByType[type] = S.wave;
+    S.stats.encounteredThreats[type] = true;
+
     S.enemies.push({
       type, x, y, r: def.r,
       hp, maxHp: hp,
@@ -68,11 +76,22 @@
     });
   }
 
+  // Weighted random threat type (Daily Simulations bias certain threats).
+  function pickType(types) {
+    const w = CDL.S.dailyMods.weights;
+    if (!w) return types[(Math.random() * types.length) | 0];
+    let total = 0;
+    for (const t of types) total += (w[t] || 1);
+    let r = Math.random() * total;
+    for (const t of types) { r -= (w[t] || 1); if (r <= 0) return t; }
+    return types[types.length - 1];
+  }
+
   function spawnTick() {
     const types = allowedTypes(CDL.S.wave);
     const batch = spawnBatch();
     for (let i = 0; i < batch; i++) {
-      const type = types[(Math.random() * types.length) | 0];
+      const type = pickType(types);
       if (type === "bruteforce") {
         const n = 3 + ((Math.random() * 3) | 0);   // swarm cluster
         for (let k = 0; k < n; k++) spawnEnemy("bruteforce");
@@ -108,9 +127,9 @@
     S.wave++;
     S.waveTimer = WC.duration;
 
-    // Backup Restore (passive) heals on surviving a wave.
+    // Backup Restore (passive) heals on surviving a wave (Backup Drill boosts it).
     if (p.backupHeal > 0 && p.hp < p.maxHp) {
-      p.hp = Math.min(p.maxHp, p.hp + p.backupHeal);
+      p.hp = Math.min(p.maxHp, p.hp + p.backupHeal * (S.dailyMods.backupBoost || 1));
     }
     announce(S.wave);
   }

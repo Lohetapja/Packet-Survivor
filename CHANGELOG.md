@@ -4,6 +4,43 @@ All notable changes to **Cyber Defense Lab: Packet Survivor** are documented
 here. The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the project aims to follow [Semantic Versioning](https://semver.org/).
 
+## [0.6.0] - 2026-06-20 — SOC Hub & Progression Update
+
+Reasons to come back: collection, unlocks, achievements, daily simulations, and a
+home base — all persisted locally, still no backend / login / tracking.
+
+### Added
+- **Progression save system** — one `localStorage` object (`packetSurvivorSave`)
+  with safe defaults + migration of the old best-score key (`save.js`).
+- **SOC Hub** — a dashboard home base: total runs, best score/wave/level, lifetime
+  telemetry, threats contained, tools unlocked, threats discovered, achievements,
+  lab progress, and the last incident, with navigation to every meta screen.
+- **Tool Library** — all 22 tools with locked/unlocked/used status, range, damage,
+  cooldown, role, description, unlock condition, and threats contained per tool.
+- **Threat Intel Database** — all 7 threats with discovered/locked status, danger,
+  first-seen wave, times contained, damage caused, recommended defensive tools, and
+  a short defensive explanation.
+- **Persistent unlocks** — 15 tools unlock through play (wave / containment /
+  telemetry milestones); 7 damage tools are unlocked by default. Locked tools never
+  appear in the starting-tool choice or level-up pool until unlocked.
+- **Achievements** — 14 milestones with progress bars, stored locally.
+- **Daily Simulation** — a 7-day, day-of-week rotation (Inbox Triage, Patch Tuesday,
+  Web Exposure Review, Identity Review, Exfiltration Watch, Backup Drill, Threat
+  Hunt) with per-day modifiers, a pre-run briefing, and local completion tracking.
+  No backend or date server.
+- **Cyber Defense Lab Room** — 50 unlockable items across 5 categories (SOC Desk,
+  Wall Board, Tool Cabinet, Threat Intel, Trophies) showing visible progression.
+- **Incident Archive** — the last 10 run reports (date, mode, score, wave, level,
+  threats, telemetry, top tool, worst threat).
+- **Unlock notifications** — newly unlocked tools / achievements / lab items are
+  listed on the game-over incident report.
+
+### Changed
+- Main menu reorganised: **Start Run · Daily Simulation · SOC Hub · How to Play ·
+  Reset Progress**. Reset Progress wipes the save (with a confirmation prompt).
+- Game over now folds the run into the persistent save (lifetime stats, discovery,
+  unlocks, achievements, lab items, archive) before showing the report.
+
 ## [0.5.0] - 2026-06-20 — Loadout & Weapon Choice Update
 
 A loadout-driven combat redesign: pick your opener, build toward 6 tools, and

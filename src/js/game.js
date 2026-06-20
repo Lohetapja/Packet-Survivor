@@ -54,14 +54,27 @@
     S.runTime = 0;
     S.shake = 0;
     S.pendingLevelUps = 0;
-    S.bestScore = CDL.Storage.loadBest();
+    S.bestScore = CDL.Save.data.bestScore;
     S.stats = CDL.freshStats();
     CDL.UI.resetFeed();
     CDL.UI.syncHud();
   }
 
-  // Start Game → choose a starting damage tool, then begin the run.
+  // Start a normal run → choose a starting damage tool, then begin.
   function startGame() {
+    S.mode = "normal"; S.daily = null; S.dailyMods = {};
+    enterStartTool();
+  }
+
+  // Start today's Daily Simulation (modifiers applied for the run).
+  function startDaily() {
+    const d = CDL.Progression.todayDaily();
+    S.mode = "daily"; S.daily = d; S.dailyMods = d.mods;
+    enterStartTool();
+  }
+
+  // Shared: reset the world and open the starting-tool chooser.
+  function enterStartTool() {
     CDL.UI.setPauseVisible(false);
     CDL.UI.hideUpgrades();
     newGame();
@@ -88,46 +101,58 @@
     S.state = "menu";
     CDL.UI.setPauseVisible(false);
     CDL.UI.hideUpgrades();
-    CDL.UI.setMenuBest(CDL.Storage.loadBest());
+    CDL.UI.setMenuBest(CDL.Save.data.bestScore);
     CDL.UI.showScreen("menu");
   }
 
-  // Game over: persist best, build the incident report, show the screen.
+  // Game over: fold the run into the persistent save (best score, lifetime
+  // stats, unlocks, achievements, lab items, incident archive), then show the
+  // incident report with anything newly earned this run.
   function endGame() {
     S.state = "gameover";
-    const p = S.player;
-    const isBest = p.score > S.bestScore;
-    if (isBest) { S.bestScore = p.score; CDL.Storage.saveBest(S.bestScore); }
-    CDL.UI.showIncidentReport(buildIncidentReport(isBest));
-  }
-
-  // Post-run summary: which tool carried, which threat hurt most, an
-  // abstract defensive recommendation tied to that threat, plus a
-  // per-type breakdown of threats contained.
-  function buildIncidentReport(isBest) {
     const p = S.player, st = S.stats;
+    const isBest = p.score > S.bestScore;
 
     const topTool = argmax(st.killsByTool);
-    // Worst threat = most damage dealt; fall back to most numerous kill.
     const topThreat = argmax(st.dmgByThreat) || argmax(st.killsByType);
-
-    const tool = topTool ? (CDL.TOOL_META[topTool] || topTool) : "Firewall Pulse";
-    const threat = topThreat ? CDL.ENEMY_TYPES[topThreat].label : "None — defenses held";
-    const reco = topThreat
-      ? CDL.ENEMY_TYPES[topThreat].reco
+    const toolName = topTool ? (CDL.TOOL_META[topTool] || topTool)
+      : (p.toolOrder[0] ? CDL.TOOL_META[p.toolOrder[0]] : "—");
+    const threatName = topThreat ? CDL.ENEMY_TYPES[topThreat].label : "None — defenses held";
+    const reco = topThreat ? CDL.ENEMY_TYPES[topThreat].reco
       : "Defenses held this run. Keep layering controls — defense in depth buys time.";
+    const modeLabel = (S.mode === "daily" && S.daily) ? ("Daily · " + S.daily.name) : CDL.diff().label;
+
+    const record = {
+      date: new Date().toISOString().slice(0, 10),
+      mode: S.mode, modeLabel, daily: S.daily ? S.daily.day : null,
+      score: p.score, wave: S.wave, level: p.level, loadout: p.toolOrder.length,
+      telemetry: st.telemetry, threats: st.kills,
+      killsByType: st.killsByType, dmgByThreat: st.dmgByThreat,
+      encounteredThreats: st.encounteredThreats, killsByTool: st.killsByTool,
+      firstWaveByType: st.firstWaveByType, ownedTools: p.toolOrder.slice(),
+      tool: toolName, threat: threatName, reco,
+    };
+    const gains = CDL.Progression.applyRun(record);
+    S.bestScore = CDL.Save.data.bestScore;
 
     const breakdown = CDL.THREAT_ORDER.map((k) => ({
-      label: CDL.ENEMY_TYPES[k].label,
-      count: st.killsByType[k] || 0,
+      label: CDL.ENEMY_TYPES[k].label, count: st.killsByType[k] || 0,
     }));
-
-    return {
+    CDL.UI.showIncidentReport({
       score: p.score, wave: S.wave, level: p.level, best: S.bestScore,
-      threats: st.kills, telemetry: st.telemetry,
-      difficulty: CDL.diff().label,
-      tool, threat, reco, breakdown, isBest,
-    };
+      threats: st.kills, telemetry: st.telemetry, difficulty: modeLabel,
+      tool: toolName, threat: threatName, reco, breakdown, isBest,
+      unlocks: formatGains(gains),
+    });
+  }
+
+  // Turn newly-earned unlocks/achievements/lab items into display lines.
+  function formatGains(g) {
+    const out = [];
+    for (const id of g.newTools) out.push("🔓 New tool: " + (CDL.TOOL_META[id] || id));
+    for (const id of g.newAch) out.push("🏆 Achievement: " + CDL.Progression.ACH_MAP[id].name);
+    for (const id of g.newLab) out.push("🧩 Lab item: " + CDL.Progression.LAB_MAP[id].name);
+    return out;
   }
 
   function argmax(map) {
@@ -222,35 +247,62 @@
     ctx.strokeRect(2, 2, W - 4, H - 4);
   }
 
-  /* ---- Button wiring ---- */
+  // Show the Daily Simulation briefing (name + modifiers), then Begin.
+  function dailyIntro() { CDL.Hub.showDailyIntro(CDL.Progression.todayDaily()); }
+
+  // Reset Progress — wipe the save, but only after explicit confirmation.
+  function resetProgress() {
+    if (!window.confirm("Reset ALL progress?\n\nThis permanently clears unlocks, achievements, lab items, best scores, and incident history. This cannot be undone.")) return;
+    CDL.Save.reset();
+    S.bestScore = 0;
+    CDL.UI.setMenuBest(0);
+    if (CDL.Hub && CDL.Hub.refresh) CDL.Hub.refresh();
+  }
+
+  /* ---- Button wiring (optional-safe: only binds buttons that exist) ---- */
   function wireUI() {
-    $("btn-start").addEventListener("click", startGame);
-    // Difficulty selector (menu): clicking a mode selects it.
+    const on = (id, fn) => { const el = $(id); if (el) el.addEventListener("click", fn); };
+    on("btn-start", startGame);
+    on("btn-daily", dailyIntro);
+    on("btn-hub", () => CDL.Hub.show("hub"));
+    on("btn-howto", () => CDL.UI.showScreen("howto"));
+    on("btn-howto-back", () => CDL.UI.showScreen("menu"));
+    on("btn-reset", resetProgress);
     document.querySelectorAll(".diff-btn").forEach((b) => {
       b.addEventListener("click", () => CDL.UI.selectDifficulty(b.dataset.diff));
     });
-    $("btn-howto").addEventListener("click", () => CDL.UI.showScreen("howto"));
-    $("btn-howto-back").addEventListener("click", () => CDL.UI.showScreen("menu"));
-    $("btn-reset").addEventListener("click", () => {
-      CDL.Storage.saveBest(0);
-      S.bestScore = 0;
-      CDL.UI.setMenuBest(0);
+    on("btn-pause", () => setPaused(S.state !== "paused"));
+    on("btn-resume", () => setPaused(false));
+    on("btn-pause-restart", startGame);
+    on("btn-quit", toMenu);
+    on("btn-restart", startGame);
+    on("btn-menu", toMenu);
+    // SOC Hub sub-navigation + Daily begin/back (screens added in hub.js).
+    on("btn-hub-library", () => CDL.Hub.show("library"));
+    on("btn-hub-intel", () => CDL.Hub.show("threatdb"));
+    on("btn-hub-ach", () => CDL.Hub.show("achievements"));
+    on("btn-hub-lab", () => CDL.Hub.show("lab"));
+    on("btn-hub-archive", () => CDL.Hub.show("archive"));
+    on("btn-hub-daily", dailyIntro);
+    on("btn-daily-begin", startDaily);
+    // Generic "back" buttons carry data-back="menu" or a hub-screen name.
+    document.querySelectorAll("[data-back]").forEach((b) => {
+      b.addEventListener("click", () => {
+        const t = b.getAttribute("data-back");
+        if (t === "menu") CDL.UI.showScreen("menu");
+        else CDL.Hub.show(t);
+      });
     });
-    $("btn-pause").addEventListener("click", () => setPaused(S.state !== "paused"));
-    $("btn-resume").addEventListener("click", () => setPaused(false));
-    $("btn-pause-restart").addEventListener("click", startGame);
-    $("btn-quit").addEventListener("click", toMenu);
-    $("btn-restart").addEventListener("click", startGame);
-    $("btn-menu").addEventListener("click", toMenu);
   }
 
-  // Expose only what other modules need to call back into.
-  CDL.Game = { over: endGame };
+  // Expose what other modules call back into.
+  CDL.Game = { over: endGame, startNormal: startGame, startDaily, dailyIntro };
 
   /* ---- Boot ---- */
   function boot() {
     CDL.UI.init();
-    S.bestScore = CDL.Storage.loadBest();
+    CDL.Save.load();
+    S.bestScore = CDL.Save.data.bestScore;
     CDL.UI.setMenuBest(S.bestScore);
     wireUI();
     CDL.UI.selectDifficulty(CDL.CONFIG.defaultDifficulty);

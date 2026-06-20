@@ -147,6 +147,30 @@ dealt the most damage (e.g. Ransomware → "Improve endpoint containment and bac
 recovery coverage."). This mirrors a real defender habit: review, find the
 biggest risk, note an improvement.
 
+## Progression & replay (v0.6.0)
+
+A local progression layer gives reasons to return without changing the core run:
+
+- **Persistent save** — one `localStorage` object (`packetSurvivorSave`) tracks
+  lifetime stats, unlocks, discovery, achievements, lab items, and an incident
+  archive. It migrates the old best-score key and fills missing fields safely.
+- **SOC Hub** — the home base / dashboard, linking the meta screens (Tool Library,
+  Threat Intel Database, Achievements, Lab Room, Incident Archive).
+- **Unlocks = variety, not power.** Start with 7 damage tools; earn 15 more via
+  wave / containment / telemetry milestones. Locked tools are excluded from the
+  starting choice and the level-up pool, so the roster opens up across runs.
+- **Achievements (14)** and a **50-item Lab Room** (SOC Desk / Wall Board / Tool
+  Cabinet / Threat Intel / Trophies) are pure collection — visible progress, no
+  power creep.
+- **Daily Simulations** — a 7-day rotation keyed to the local weekday (no backend).
+  Each day biases threat spawns and buffs themed tools (e.g. Patch Tuesday → more
+  malware + stronger Patch Wave; Backup Drill → more ransomware + stronger Backup
+  Restore). A run "completes" the day by reaching Wave 3.
+
+Design guardrail: progression must not make the player stronger *within* a run
+beyond what the loadout already allows — it broadens choice and adds collection,
+keeping the survival curve intact.
+
 ## Tone & art direction
 
 - Dark navy SOC dashboard; cyan = player/defense, warm red/orange = threats,

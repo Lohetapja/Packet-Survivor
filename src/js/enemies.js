@@ -105,16 +105,21 @@
 
     if (e.hp > 0) return false;
 
-    S.player.score += e.score;
+    // Daily Simulation modifiers (all default to 1 in normal mode).
+    const md = S.dailyMods;
+    const scoreMul = (md.score && md.score[e.type]) || 1;
+    const teleMul = ((md.telemetry && md.telemetry[e.type]) || 1) * (md.telemetryAll || 1);
+
+    S.player.score += Math.round(e.score * scoreMul);
     S.stats.kills++;
     if (source) S.stats.killsByTool[source] = (S.stats.killsByTool[source] || 0) + 1;
     S.stats.killsByType[e.type] = (S.stats.killsByType[e.type] || 0) + 1;
     CDL.Effects.death(e.x, e.y, e.color);
 
-    // Telemetry drop (SIEM grants a small bonus).
+    // Telemetry drop (SIEM grants a small bonus; daily mods scale it).
     S.pickups.push({
       x: e.x, y: e.y, r: 5,
-      value: e.xp + (source === "siem" ? 1 : 0),
+      value: Math.max(1, Math.round((e.xp + (source === "siem" ? 1 : 0)) * teleMul)),
       vx: rand(-30, 30), vy: rand(-30, 30),
       bob: Math.random() * 6.28,
     });

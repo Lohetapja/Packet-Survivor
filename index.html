@@ -30,9 +30,11 @@
         </div>
 
         <div class="menu-buttons">
-          <button id="btn-start" class="btn btn-primary">▶ Start Game</button>
+          <button id="btn-start" class="btn btn-primary">▶ Start Run</button>
+          <button id="btn-daily" class="btn">📅 Daily Simulation</button>
+          <button id="btn-hub" class="btn">🛰️ SOC Hub</button>
           <button id="btn-howto" class="btn">How to Play</button>
-          <button id="btn-reset" class="btn btn-ghost">Reset Best Score</button>
+          <button id="btn-reset" class="btn btn-ghost">Reset Progress</button>
         </div>
 
         <div class="menu-best">
@@ -198,11 +200,89 @@
           <div class="incident-reco"><strong>Defensive recommendation:</strong> <span id="go-reco">—</span></div>
         </div>
 
+        <div id="go-unlocks" class="go-unlocks hidden"></div>
+
         <div id="go-newbest" class="newbest hidden">★ New Best Score! ★</div>
 
         <div class="overlay-buttons">
           <button id="btn-restart" class="btn btn-primary">↻ Restart</button>
           <button id="btn-menu" class="btn btn-ghost">Main Menu</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== SOC HUB ===================== -->
+    <section id="screen-hub" class="screen hidden">
+      <div class="panel meta-panel hub-panel">
+        <h2>🛰️ Cyber Defense Lab Hub</h2>
+        <p class="muted">Review your tools, threat intel, achievements, and incident history.</p>
+        <div id="hub-stats" class="hub-stats"></div>
+        <div id="hub-last" class="hub-last"></div>
+        <div class="hub-nav">
+          <button id="btn-hub-library" class="btn btn-small">🧰 Tool Library</button>
+          <button id="btn-hub-intel" class="btn btn-small">🦠 Threat Intel</button>
+          <button id="btn-hub-ach" class="btn btn-small">🏆 Achievements</button>
+          <button id="btn-hub-lab" class="btn btn-small">🧪 Lab Room</button>
+          <button id="btn-hub-archive" class="btn btn-small">🗃️ Incident Archive</button>
+          <button id="btn-hub-daily" class="btn btn-small">📅 Daily Simulation</button>
+        </div>
+        <button class="btn btn-ghost" data-back="menu">◀ Back to Menu</button>
+      </div>
+    </section>
+
+    <!-- ===================== TOOL LIBRARY ===================== -->
+    <section id="screen-library" class="screen hidden">
+      <div class="panel meta-panel">
+        <div class="meta-head"><h2>🧰 Tool Library</h2><button class="btn btn-small" data-back="hub">◀ SOC Hub</button></div>
+        <div id="library-cards" class="lib-grid"></div>
+        <button class="btn btn-ghost" data-back="menu">◀ Back to Menu</button>
+      </div>
+    </section>
+
+    <!-- ===================== THREAT INTEL DATABASE ===================== -->
+    <section id="screen-threatdb" class="screen hidden">
+      <div class="panel meta-panel">
+        <div class="meta-head"><h2>🦠 Threat Intel Database</h2><button class="btn btn-small" data-back="hub">◀ SOC Hub</button></div>
+        <div id="threatdb-cards" class="intel-grid"></div>
+        <button class="btn btn-ghost" data-back="menu">◀ Back to Menu</button>
+      </div>
+    </section>
+
+    <!-- ===================== ACHIEVEMENTS ===================== -->
+    <section id="screen-achievements" class="screen hidden">
+      <div class="panel meta-panel">
+        <div class="meta-head"><h2>🏆 Achievements</h2><button class="btn btn-small" data-back="hub">◀ SOC Hub</button></div>
+        <div id="ach-cards" class="ach-grid"></div>
+        <button class="btn btn-ghost" data-back="menu">◀ Back to Menu</button>
+      </div>
+    </section>
+
+    <!-- ===================== LAB ROOM ===================== -->
+    <section id="screen-lab" class="screen hidden">
+      <div class="panel meta-panel">
+        <div class="meta-head"><h2>🧪 Cyber Defense Lab Room</h2><button class="btn btn-small" data-back="hub">◀ SOC Hub</button></div>
+        <div id="lab-content"></div>
+        <button class="btn btn-ghost" data-back="menu">◀ Back to Menu</button>
+      </div>
+    </section>
+
+    <!-- ===================== INCIDENT ARCHIVE ===================== -->
+    <section id="screen-archive" class="screen hidden">
+      <div class="panel meta-panel">
+        <div class="meta-head"><h2>🗃️ Incident Archive</h2><button class="btn btn-small" data-back="hub">◀ SOC Hub</button></div>
+        <div id="archive-list" class="archive-list"></div>
+        <button class="btn btn-ghost" data-back="menu">◀ Back to Menu</button>
+      </div>
+    </section>
+
+    <!-- ===================== DAILY SIMULATION INTRO ===================== -->
+    <section id="screen-daily" class="screen hidden">
+      <div class="panel daily-panel">
+        <h2>📅 Daily Simulation</h2>
+        <div id="daily-content"></div>
+        <div class="overlay-buttons">
+          <button id="btn-daily-begin" class="btn btn-primary">▶ Begin Simulation</button>
+          <button class="btn btn-ghost" data-back="menu">◀ Back to Menu</button>
         </div>
       </div>
     </section>
@@ -213,14 +293,17 @@
        file:// and GitHub Pages). See src/js/config.js for the why. -->
   <script src="src/js/config.js"></script>
   <script src="src/js/storage.js"></script>
+  <script src="src/js/save.js"></script>
   <script src="src/js/effects.js"></script>
   <script src="src/js/abilities.js"></script>
   <script src="src/js/enemies.js"></script>
+  <script src="src/js/progression.js"></script>
   <script src="src/js/tools.js"></script>
   <script src="src/js/upgrades.js"></script>
   <script src="src/js/waves.js"></script>
   <script src="src/js/player.js"></script>
   <script src="src/js/ui.js"></script>
+  <script src="src/js/hub.js"></script>
   <script src="src/js/game.js"></script>
 </body>
 </html>

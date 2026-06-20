@@ -500,6 +500,105 @@ kbd {
 }
 .tool-stat { font-family: var(--mono); font-size: 11px; color: var(--warn); margin-bottom: 4px; }
 
+/* ============================================================
+   v0.6.0 — SOC Hub & progression screens
+   ============================================================ */
+
+/* Shared meta-screen panel (scrollable) */
+.meta-panel { width: 920px; max-width: 96%; max-height: 92vh; overflow-y: auto; }
+.meta-panel > h2 { font-size: 24px; color: #eaf6ff; }
+.meta-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.meta-head h2 { font-size: 24px; color: #eaf6ff; }
+
+/* Game-over: unlocked-this-run */
+.go-unlocks {
+  text-align: left; background: rgba(52,211,153,0.06); border: 1px solid rgba(52,211,153,0.3);
+  border-radius: 10px; padding: 10px 14px; margin: 4px 0 12px;
+}
+.go-unlocks-title { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; color: var(--ok); margin-bottom: 6px; }
+.go-unlock-row { font-family: var(--mono); font-size: 12.5px; color: var(--text); padding: 2px 0; }
+
+/* SOC Hub */
+.hub-panel { width: 860px; }
+.hub-stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 18px 0 14px; }
+.hub-tile { background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.hub-tile-v { font-family: var(--mono); font-size: 20px; font-weight: 700; color: var(--accent-2); }
+.hub-tile-k { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.5px; color: var(--muted); text-align: center; }
+.hub-last { background: var(--bg-2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 10px; padding: 12px 14px; text-align: left; margin-bottom: 16px; }
+.hub-last-title { font-family: var(--mono); font-size: 11px; letter-spacing: 1px; color: var(--accent); margin-bottom: 6px; }
+.hub-last-row { font-size: 13px; color: var(--text); line-height: 1.5; }
+.hub-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+
+/* Tool Library */
+.lib-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 8px 0 16px; }
+.lib-card { background: linear-gradient(180deg, var(--panel-2), var(--bg-2)); border: 1px solid var(--border-hi); border-radius: 10px; padding: 12px; text-align: left; }
+.lib-card.locked { opacity: 0.6; background: var(--bg-2); border-style: dashed; }
+.lib-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.lib-ic { font-size: 18px; }
+.locked-ic { filter: grayscale(1); opacity: 0.7; }
+.lib-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent-2); flex: 1; }
+.lib-status { font-family: var(--mono); font-size: 8.5px; letter-spacing: 1px; padding: 2px 6px; border-radius: 12px; border: 1px solid; }
+.st-unlocked { color: var(--ok); border-color: rgba(52,211,153,0.4); }
+.st-used { color: var(--accent); border-color: rgba(56,189,248,0.4); }
+.st-locked { color: var(--muted); border-color: var(--border); }
+.lib-meta { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+.chip { font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px; padding: 2px 7px; border-radius: 12px; background: rgba(34,211,238,0.08); color: var(--accent-2); border: 1px solid rgba(34,211,238,0.25); }
+.lib-stat { font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 5px; }
+.lib-desc { font-size: 11.5px; color: var(--muted); line-height: 1.4; margin-bottom: 6px; }
+.lib-foot { font-family: var(--mono); font-size: 10px; color: var(--muted); border-top: 1px dashed rgba(41,67,101,0.5); padding-top: 6px; }
+
+/* Threat Intel database (extends .intel-item from How to Play) */
+.intel-item.locked { opacity: 0.55; border-style: dashed; }
+.intel-statline { font-family: var(--mono); font-size: 11px; color: var(--text); margin-bottom: 5px; }
+.intel-reco { font-size: 11px; color: var(--accent-2); margin-top: 5px; }
+
+/* Achievements */
+.ach-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 8px 0 16px; }
+.ach-card { background: var(--bg-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; text-align: left; }
+.ach-card.earned { border-color: rgba(52,211,153,0.45); background: rgba(52,211,153,0.05); }
+.ach-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 4px; }
+.ach-name { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--accent-2); }
+.ach-badge { font-family: var(--mono); font-size: 8.5px; letter-spacing: 1px; color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 2px 7px; }
+.ach-card.earned .ach-badge { color: var(--ok); border-color: rgba(52,211,153,0.5); }
+.ach-desc { font-size: 11.5px; color: var(--muted); line-height: 1.4; margin-bottom: 8px; }
+.ach-bar { height: 6px; background: #0a1322; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+.ach-bar-fill { height: 100%; background: linear-gradient(90deg, #34d399, #22d3ee); }
+.ach-prog { font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: right; margin-top: 3px; }
+
+/* Lab Room */
+.lab-section { margin-bottom: 16px; }
+.lab-cat-head { font-family: var(--mono); font-size: 13px; color: #eaf6ff; letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+.lab-cat-count { font-size: 11px; color: var(--accent-2); }
+.lab-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.lab-item { background: var(--bg-2); border: 1px solid var(--border); border-radius: 9px; padding: 10px 6px; text-align: center; display: flex; flex-direction: column; gap: 3px; align-items: center; }
+.lab-item.locked { opacity: 0.5; border-style: dashed; }
+.lab-ic { font-size: 22px; }
+.lab-item.locked .lab-ic { filter: grayscale(1); }
+.lab-iname { font-family: var(--mono); font-size: 10px; color: var(--text); line-height: 1.2; }
+.lab-cond { font-size: 8.5px; color: var(--muted); line-height: 1.2; }
+
+/* Incident Archive */
+.archive-list { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 16px; }
+.arch-row { background: var(--bg-2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 10px 12px; text-align: left; }
+.arch-main { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.arch-date { font-family: var(--mono); font-size: 12px; color: var(--accent-2); font-weight: 700; }
+.arch-mode { font-family: var(--mono); font-size: 11px; color: var(--warn); }
+.arch-stats { font-family: var(--mono); font-size: 11.5px; color: var(--text); }
+.arch-foot { font-size: 11px; margin-top: 3px; }
+
+/* Daily Simulation intro */
+.daily-panel { width: 560px; max-width: 96%; text-align: center; }
+.daily-panel > h2 { font-size: 22px; color: #eaf6ff; margin-bottom: 14px; }
+.daily-day { font-family: var(--mono); font-size: 12px; letter-spacing: 3px; color: var(--muted); text-transform: uppercase; }
+.daily-name { font-size: 28px; font-weight: 700; color: var(--accent-2); margin: 4px 0 8px; }
+.daily-done { font-family: var(--mono); font-size: 11px; color: var(--ok); vertical-align: middle; letter-spacing: 1px; }
+.daily-theme { color: var(--muted); font-size: 13px; margin-bottom: 16px; }
+.daily-mods-title { font-family: var(--mono); font-size: 11px; letter-spacing: 1.5px; color: var(--accent); margin-bottom: 8px; }
+.daily-mods { list-style: none; padding: 0; margin: 0 0 14px; text-align: left; display: inline-block; }
+.daily-mods li { font-size: 13px; color: var(--text); padding: 4px 0 4px 20px; position: relative; }
+.daily-mods li::before { content: "▸"; color: var(--accent-2); position: absolute; left: 0; }
+.daily-note { font-size: 11px; margin-bottom: 6px; }
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 720px) {
   .howto-grid { grid-template-columns: repeat(2, 1fr); }
@@ -512,4 +611,8 @@ kbd {
   .result-grid { grid-template-columns: 1fr; }
   .intel-grid, .tools-grid, .ibd-list { grid-template-columns: 1fr; }
   .diff-options { flex-direction: column; }
+  .hub-stats { grid-template-columns: repeat(2, 1fr); }
+  .hub-nav { grid-template-columns: 1fr; }
+  .lib-grid, .ach-grid { grid-template-columns: 1fr; }
+  .lab-grid { grid-template-columns: repeat(3, 1fr); }
 }

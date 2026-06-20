@@ -18,13 +18,15 @@ static server, and GitHub Pages — with **no build step**.
 Trade-off: load order matters. `index.html` loads files in dependency order:
 
 ```
-config → storage → effects → abilities → enemies → tools → upgrades → waves → player → ui → game
+config → storage → save → effects → abilities → enemies → progression
+       → tools → upgrades → waves → player → ui → hub → game
 ```
 
 `config.js` must be first (it creates `window.CDL`, `CDL.CONFIG`, and `CDL.S`).
-`abilities.js` must load before `enemies.js` (which reads `CDL.CONTINUOUS_SRC`
-at load time) and before the tool engine. `game.js` must be last (it boots
-everything and starts the loop).
+`save.js` loads early so other modules can read `CDL.Save.data`. `abilities.js`
+must load before `enemies.js` (which reads `CDL.CONTINUOUS_SRC` at load time);
+`progression.js` loads after both (it reads ability + threat metadata).
+`game.js` must be last (it boots everything and starts the loop).
 
 ## The namespace & shared state
 
@@ -42,19 +44,22 @@ everything and starts the loop).
 | File | Owns |
 | ---- | ---- |
 | `config.js` | namespace, `CONFIG` tunables (incl. `difficulties`), `CDL.S` state, `CDL.diff()`, math helpers, `freshStats()` |
-| `storage.js` | `localStorage` best-score load/save (fails soft) |
+| `storage.js` | legacy `localStorage` best-score helper (kept only for migration) |
+| `save.js` | `CDL.Save` — the progression save (`packetSurvivorSave`): `load()` (migrate + fill defaults), `save()`, `reset()`, `DEFAULT_UNLOCKED` |
 | `effects.js` | `CDL.Effects` — cosmetic particle pool (death bursts, telemetry pops), capped |
 | `abilities.js` | **data registry**: `CDL.ABILITIES` (22 damage tools + archetype + stats + upgrade specs), `PASSIVES`, derived `TOOL_META/ORDER/INFO`, `CONTINUOUS_SRC`, loadout helpers (`createToolState`, `grantTool`, `starterChoices`, `toolCardData`) |
-| `enemies.js` | `ENEMY_TYPES` (+ intel/`reco`), `THREAT_ORDER`, `damageEnemy()` (kill/type tally, hit-flash, death burst), AI, field/wall DoT, rendering, `nearest()` |
+| `enemies.js` | `ENEMY_TYPES` (+ intel/`reco`), `THREAT_ORDER`, `damageEnemy()` (kill/type tally, hit-flash, death burst, daily score/telemetry mods), AI, field/wall DoT, rendering, `nearest()` |
+| `progression.js` | `CDL.Progression` — tool unlock rules, 14 achievements, 50 lab items, 7 dailies, and `applyRun()` (folds a finished run into the save + returns new unlocks) |
 | `tools.js` | the **engine**: per-archetype handlers, projectile/mine/wall sim, and all tool rendering (runs whatever `player.toolOrder` owns) |
 | `upgrades.js` | loadout-aware `buildChoices()` (new-tool + owned-tool upgrade + passive cards), card builders, stat formatting, tag/rarity metadata |
 | `waves.js` | difficulty-aware scaling multipliers, `allowedTypes()`, spawning, `nextWave()` (Backup Restore heal), banner text |
 | `player.js` | `create()` (empty loadout: `tools{}`, `toolOrder[]`, `backupHeal`), movement, `gainXp()`, `hit()` (damage flash), pickups, rendering |
-| `ui.js` | **all** DOM: HUD (+difficulty), feed, banners, damage flash, difficulty selector, upgrade cards, incident report, Threat Intel & Tools guides |
-| `game.js` | input, state machine, main loop, run setup, level-up flow, incident report build, button wiring |
+| `ui.js` | core DOM: HUD (+difficulty +loadout), feed, banners, damage flash, difficulty selector, start-tool + upgrade cards, incident report (+unlocks), guides |
+| `hub.js` | `CDL.Hub` — renders the meta screens (SOC Hub, Tool Library, Threat Intel DB, Achievements, Lab Room, Incident Archive, Daily briefing) |
+| `game.js` | input, state machine, main loop, run setup (normal + daily), level-up flow, run recording via `Progression.applyRun`, button wiring |
 
-`ui.js` is the only module that touches the DOM. Game logic talks to the screen
-exclusively through `CDL.UI`.
+`ui.js` and `hub.js` are the only modules that touch the DOM. Game logic talks to
+the screen through `CDL.UI` (in-run) and `CDL.Hub` (meta screens).
 
 ## The loop & state machine
 
@@ -109,6 +114,27 @@ Reusable effect arrays (most archetypes only push to these):
 ### Add a passive
 Append to `CDL.PASSIVES` in `abilities.js`: `{ id, name, icon, rarity, desc,
 preview(player), apply(player) }`. Passives never count toward the 6-tool cap.
+
+### Add progression content (v0.6.0, all in `progression.js`)
+- **Tool unlock** — add an entry to `TOOL_UNLOCKS` (`{ kind, n, text }`, kinds:
+  `wave` / `contain` / `telemetry` / `threat`). Default-unlocked tools live in
+  `save.js → DEFAULT_UNLOCKED`. `evalUnlocks()` adds satisfied tools after a run.
+- **Achievement** — append to `ACHIEVEMENTS` with `{ id, name, desc, prog(save)
+  -> [current, target] }`. Earned when `current >= target`.
+- **Lab item** — append to `LAB_ITEMS` with `{ id, cat, name, icon, cond(save),
+  text }` (cat must be one of `LAB_CATEGORIES`). Helpers like `cWave(n)` /
+  `cTele(n)` / `cThrN(t,n)` build conditions.
+- **Daily** — `DAILIES` is indexed by `Date.getDay()` (0=Sun). Each has `mods`
+  read by waves/enemies/grantTool: `weights` (spawn bias), `enemyHp` /
+  `enemyHpFor`, `telemetry` / `telemetryAll`, `score`, `toolBuffs`, `spawnMult`,
+  `backupBoost`.
+- All of the above are evaluated by `applyRun(record)` at game over, which also
+  appends to the incident archive and saves. Run data comes from `S.stats`.
+
+### Save schema
+One key, `packetSurvivorSave` (see `save.js`). `load()` migrates the old
+`cdl_packet_survivor_best` key and fills any missing fields, so older saves and
+future additions stay compatible. Everything is local — no network calls.
 
 ### Tune difficulty
 Edit `CDL.CONFIG` in `config.js`:

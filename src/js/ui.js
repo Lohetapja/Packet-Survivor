@@ -44,6 +44,9 @@
         screens: {
           menu: $("screen-menu"), howto: $("screen-howto"), starttool: $("screen-starttool"),
           game: $("screen-game"), gameover: $("screen-gameover"),
+          hub: $("screen-hub"), library: $("screen-library"), threatdb: $("screen-threatdb"),
+          achievements: $("screen-achievements"), lab: $("screen-lab"), archive: $("screen-archive"),
+          daily: $("screen-daily"),
         },
         hpFill: $("hp-fill"), hpText: $("hp-text"),
         xpFill: $("xp-fill"), xpText: $("xp-text"),
@@ -63,7 +66,7 @@
         goScore: $("go-score"), goWave: $("go-wave"), goLevel: $("go-level"), goBest: $("go-best"),
         goThreats: $("go-threats"), goTelemetry: $("go-telemetry"), goDifficulty: $("go-difficulty"),
         goTool: $("go-tool"), goThreat: $("go-threat"), goReco: $("go-reco"),
-        goBreakdown: $("go-breakdown"), goNewBest: $("go-newbest"),
+        goBreakdown: $("go-breakdown"), goNewBest: $("go-newbest"), goUnlocks: $("go-unlocks"),
       };
       buildThreatIntel();
       buildToolGuide();
@@ -202,6 +205,24 @@
         el.innerHTML = '<span class="ibd-name">' + row.label + "</span>" + '<span class="ibd-count">' + row.count + "</span>";
         R.goBreakdown.appendChild(el);
       }
+      // Newly earned this run (tools / achievements / lab items).
+      R.goUnlocks.innerHTML = "";
+      if (rep.unlocks && rep.unlocks.length) {
+        const head = document.createElement("div");
+        head.className = "go-unlocks-title";
+        head.textContent = "▸ UNLOCKED THIS RUN";
+        R.goUnlocks.appendChild(head);
+        for (const line of rep.unlocks) {
+          const el = document.createElement("div");
+          el.className = "go-unlock-row";
+          el.textContent = line;
+          R.goUnlocks.appendChild(el);
+        }
+        R.goUnlocks.classList.remove("hidden");
+      } else {
+        R.goUnlocks.classList.add("hidden");
+      }
+
       R.goNewBest.classList.toggle("hidden", !rep.isBest);
       CDL.UI.showScreen("gameover");
     },
