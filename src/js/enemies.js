@@ -16,9 +16,20 @@
 
   const { dist2, rand } = CDL;
 
-  // Sources that deal damage every frame (beams / fields). They skip the
-  // per-enemy hit flash so a threat isn't held permanently white.
-  const CONTINUOUS_SRC = { quarantine: 1, dlp: 1, sandbox: 1, memory: 1 };
+  // Sources that deal damage every frame (beams / fields / walls) — built
+  // from the ability registry. They skip the per-enemy hit flash so a
+  // threat isn't held permanently white.
+  const CONTINUOUS_SRC = CDL.CONTINUOUS_SRC;
+
+  // Distance from a point to a line segment (for wall slow/damage).
+  function distToSeg(px, py, w) {
+    const dx = w.x2 - w.x1, dy = w.y2 - w.y1;
+    const len2 = dx * dx + dy * dy || 1;
+    let t = ((px - w.x1) * dx + (py - w.y1) * dy) / len2;
+    t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const cx = w.x1 + t * dx, cy = w.y1 + t * dy;
+    return Math.hypot(px - cx, py - cy);
+  }
 
   /* Base stats are scaled per-wave at spawn time (see waves.js).
      Extra fields power the in-game info screens & incident report:
@@ -108,15 +119,6 @@
       bob: Math.random() * 6.28,
     });
 
-    // Contextual, throttled feedback.
-    const feed = CDL.UI.feedMsg;
-    if (source === "edr" && (e.type === "malware" || e.type === "ransomware")) feed("EDR contained malware.", "good");
-    else if (source === "siem") feed("SIEM detected suspicious activity.", "good");
-    else if (source === "firewall") feed("Firewall Pulse blocked hostile traffic.", "good");
-    else if (source === "quarantine") feed("Quarantine Beam isolated a threat.", "good");
-    else if (source === "mfa") feed("MFA Shield repelled an intruder.", "good");
-    else if (e.type === "exfil") feed("Exfiltration Drone intercepted!", "good");
-
     const idx = S.enemies.indexOf(e);
     if (idx !== -1) S.enemies.splice(idx, 1);
     return true;
@@ -146,8 +148,7 @@
 
       for (let i = S.enemies.length - 1; i >= 0; i--) {
         const e = S.enemies[i];
-        if (e.shieldCd > 0) e.shieldCd -= dt;
-        if (e.shredCd > 0) e.shredCd -= dt;
+        if (e.orbitCd > 0) e.orbitCd -= dt;
         if (e.hitFlash > 0) e.hitFlash -= dt;
 
         // Target the nearest honeypot decoy if one exists, else the player.
@@ -163,16 +164,22 @@
 
         const ang = Math.atan2(ty - e.y, tx - e.x);
 
-        // Fields: take the strongest slow + the strongest damage-over-time.
+        // Fields + walls: take the strongest slow + the strongest DoT.
         let minSlow = 1, fdps = 0, fsrc = null;
         for (const f of S.fields) {
           if (dist2(e.x, e.y, f.x, f.y) <= f.r * f.r) {
             if (f.slow < minSlow) minSlow = f.slow;
             if (f.dps) {
               let d = f.dps;
-              if (f.kind === "dlp" && e.type === "exfil") d *= 2; // DLP counters exfiltration
-              if (d > fdps) { fdps = d; fsrc = f.kind === "sandbox" ? "sandbox" : "dlp"; }
+              if (f.bonusType === "exfil" && e.type === "exfil") d *= 2; // DLP counters exfiltration
+              if (d > fdps) { fdps = d; fsrc = f.src; }
             }
+          }
+        }
+        for (const w of S.walls) {
+          if (distToSeg(e.x, e.y, w) < 16) {
+            if (w.slow < minSlow) minSlow = w.slow;
+            if (w.dps > fdps) { fdps = w.dps; fsrc = w.src; }
           }
         }
         const sp = e.speed * minSlow;
@@ -191,7 +198,7 @@
           CDL.Player.hit(e);
         }
 
-        // Field damage-over-time (DLP / Sandbox) — may defeat the threat.
+        // Field / wall damage-over-time — may defeat the threat.
         if (fdps > 0 && CDL.damageEnemy(e, fdps * dt, fsrc)) continue;
       }
     },

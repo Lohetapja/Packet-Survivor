@@ -43,8 +43,9 @@ https://lohetapja.github.io/Packet-Survivor/
 - 🎮 Top-down arena survival with smooth WASD / arrow-key movement
 - 🎚️ Three **difficulty modes** — Training, Analyst, Incident Commander
 - 🌊 Seven distinct threat types introduced one wave at a time
-- 🧰 **Fourteen** defensive tools that **auto-activate** — detection, containment, companions & control
-- 🧬 High **build variety** — mix orbiting, area, projectile, and trap tools each run
+- 🧰 **22 damage abilities** that **auto-activate** — pulses, projectiles, rings, orbits, beams, fields, companions, mines & walls
+- 🎯 **Choose your starter**, then build a **loadout of up to 6** tools — with visible damage / cooldown numbers on every card
+- 🧬 High **build variety** — every run combines different archetypes
 - ⬆️ Level-up chooser with **type and rarity** badges (New Tool / Upgrade / Passive · Common / Uncommon / Rare)
 - ✨ Lightweight game feel: hit flashes, death bursts, telemetry pops, damage flash, screen shake
 - 📚 In-game **Threat Intel** and **Defensive Tools** guides — learn through play, no quiz
@@ -61,10 +62,11 @@ https://lohetapja.github.io/Packet-Survivor/
 | Move   | `W` `A` `S` `D` or arrow keys |
 | Pause / Resume | `Spacebar` (or the on-screen buttons) |
 
-No mouse aiming required — all tools auto-target. Defeated threats drop
-**telemetry**; collect it to level up and choose 1 of 3 upgrades. Every 24 seconds
-a harder wave begins. At 0 health the network is breached and you get an incident
-report.
+At the start of a run you **choose your first damage tool** from three options.
+Defeated threats drop **telemetry**; collect it to level up and pick a new tool or
+an upgrade — up to a loadout of **6 tools**. No mouse aiming — all tools auto-target.
+Every 24 seconds a harder wave begins; at 0 health the network is breached and you
+get an incident report.
 
 ## Difficulty Modes
 
@@ -83,25 +85,23 @@ panels: a short, defensive, no-quiz explainer for every threat and tool.
 
 ## Defensive Tools
 
-You start with the **Firewall Pulse**. The rest are unlocked and improved through
-level-up upgrades.
+**22 auto-activating damage abilities**, grouped by archetype. You choose one to
+start, then add up to six. Each has 2–3 upgrades, and the full list with stats lives
+on the in-game **How to Play** screen.
 
-| Tool | Type | What it does |
-| ---- | ---- | ------------ |
-| 🔥 Firewall Pulse | Active | Short-range pulse that damages and knocks back nearby threats |
-| ✳️ EDR Burst | Active | Fires tracking bursts at nearby threats; extra-effective vs Malware & Ransomware |
-| 📡 SIEM Scanner | Active | A scanning ring that damages nearby threats and grants bonus telemetry |
-| 🕳️ DNS Sinkhole Field | Active | Drops a field that slows threats caught inside it |
-| 🛡️ MFA Shield | Active | Rotating shield nodes that block and damage threats that touch you |
-| 🍯 Honeypot Decoy | Active | Deploys a lure that distracts threats away from you |
-| 🎯 Quarantine Beam | Active | Beams the closest threat with steady damage over time |
-| 💾 Backup Restore | Passive | Restores some health after each wave you survive |
-| 💠 Packet Storm | Active | Burst-fires packets in all directions — clears weak swarms |
-| 🚁 Threat Hunter Drone | Companion | An orbiting drone auto-shoots the nearest threat (up to 3) |
-| 🩹 Patch Wave | Active | Periodic expanding remediation wave around the player |
-| 🕸️ DLP Net | Field | Slows and damages threats in a net; extra-effective vs Exfiltration |
-| 🌀 Log Shredder | Orbit | An orbiting telemetry shard shreds threats it touches |
-| 🧪 Sandbox Trap | Field | A containment zone that strongly slows and saps threats |
+- 🔥 **Pulse** (area) — Firewall Pulse, Patch Wave, NDR Sweep
+- 💠 **Radial** (mid) — Packet Storm, SOAR Volley
+- ✳️ **Projectile** (mid/long) — EDR Burst, IDS Needle, YARA Strike, Telemetry Lance (pierce)
+- 📡 **Ring** (close/area) — SIEM Scanner, Zero Trust Ring
+- 🛡️ **Orbit** (close) — MFA Shield, Log Shredder, TLS Shield Arc
+- 🎯 **Beam** (long) — Quarantine Beam, Memory Scanner
+- 🕸️ **Field / trap** — DNS Sinkhole, DLP Net (vs Exfiltration), Sandbox Trap
+- 🚁 **Companion** — Threat Hunter Drone
+- 💣 **Mine** — Containment Mine
+- 🧱 **Wall** — Network Segmentation Wall
+
+**Passives** (not part of the 6-tool cap): Hardened Core (+max HP), Optimized
+Routing (+speed), Telemetry Magnet (+pickup range), Backup Restore (per-wave heal).
 
 ## Threat Types
 
@@ -157,8 +157,8 @@ No build, bundler, or CI is required — the files are served exactly as they ar
 ├── LICENSE
 ├── src/
 │   ├── css/style.css          # dark SOC-dashboard theme
-│   └── js/                     # config, storage, effects, enemies, tools,
-│                               #   upgrades, waves, player, ui, game (in order)
+│   └── js/                     # config, storage, effects, abilities, enemies,
+│                               #   tools, upgrades, waves, player, ui, game (in order)
 ├── assets/
 │   ├── screenshots/           # README screenshots
 │   └── icons/                 # optional custom icons (game uses emoji by default)

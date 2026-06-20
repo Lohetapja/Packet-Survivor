@@ -4,6 +4,48 @@ All notable changes to **Cyber Defense Lab: Packet Survivor** are documented
 here. The format is loosely based on [Keep a Changelog](https://keepachangelog.com/),
 and the project aims to follow [Semantic Versioning](https://semver.org/).
 
+## [0.5.0] - 2026-06-20 — Loadout & Weapon Choice Update
+
+A loadout-driven combat redesign: pick your opener, build toward 6 tools, and
+see the numbers behind every choice. Tools are now a **data-driven ability
+registry** (`abilities.js`) run by shared archetype engines (`tools.js`).
+
+### Added
+- **Choose Your First Tool** screen after Start: 3 random starter damage tools,
+  each showing icon, range type, damage, cooldown/fire rate, and a description.
+- **20+ damage abilities** (22 total) across 10 shared archetypes — pulse,
+  radial, projectile, ring, orbit, beam, field, companion, **mine**, and
+  **wall** (the last two are new mechanics).
+- **6-slot active-tool cap** (`CONFIG.maxTools`). New-tool cards stop once the
+  loadout is full.
+- **Loadout HUD chip** — `Tools 3 / 6` plus tiny tool icons.
+- **Numbers on cards** — tool cards show Damage / Range / Cooldown; upgrade cards
+  show the change (e.g. `Damage: 12 → 17`, `Cooldown: 1.4s → 1.2s`).
+- New passive: Backup Restore is now a passive (per-wave heal), alongside
+  Hardened Core, Optimized Routing, and Telemetry Magnet.
+
+### Changed
+- **Level-up logic** — while under the cap each level-up offers exactly **1 new
+  damage tool + 2 upgrades/passives**; at 6 tools it's upgrades/passives only.
+  Upgrades are only ever offered for **owned** tools; passives are down-weighted
+  so they don't dominate early.
+- **Bigger arena** — internal resolution 1000×620 → **1200×720**, and the stage
+  now fills `min(78vh, 800px)` for a roomier, less cramped play area.
+- **Compact HUD** — single slimmer row, leaving more space for the arena.
+- **Quieter event feed** — moved out of the combat area to a small strip under
+  the HUD; only important messages (wave incoming/contained, tool acquired),
+  fewer items, faster fade. Per-hit / per-kill spam removed.
+- **Damage tuning** — most abilities hit a little harder; short-range tools do
+  more, long-range less but safer, fields/traps lower but add control. Early
+  enemy HP stays trimmed. Validated curve (Analyst dies ~wave 7): waves 1–3
+  comfortable, 4–6 tense, 7+ dangerous. Training forgiving (~wave 11), Incident
+  hardest (~wave 6). Not immortal.
+
+### Notes
+- Shared mechanics are intentional: several tools reuse one archetype engine but
+  differ in stats, range, colour, and shape. See `docs/DEVELOPMENT_NOTES.md` for
+  the per-archetype tool list.
+
 ## [0.4.0] - 2026-06-19 — Weapons & Balance Update
 
 Six new defensive tools and a balance pass for a stronger, more varied feel.

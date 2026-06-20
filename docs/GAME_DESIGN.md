@@ -54,36 +54,45 @@ Introduced one new type per wave so the player learns each in isolation:
 | 7 | Exfiltration Drone | fast, high score value |
 | 8+ | Mixed | everything, scaling up |
 
-## Tools (defensive)
+## Tools & loadout (v0.5.0)
 
-Start with **Firewall Pulse**; unlock the rest via upgrades. There are
-**fourteen** tools, each mapping to a real defensive control and falling into a
-loose archetype so builds feel distinct:
+Tools are a **data-driven ability registry** (`abilities.js`): 22 damage
+abilities, each declaring an **archetype** (shared behaviour) plus tuned stats
+and a short list of upgrades. A handful of shared archetype engines (`tools.js`)
+run whatever the player owns, so 20+ tools ship without 20 bespoke code paths.
 
-- **Perimeter / area:** Firewall Pulse, Patch Wave — pulses around the player.
-- **Projectile:** EDR Burst, Packet Storm — tracking or radial fire.
-- **Companion:** Threat Hunter Drone — orbits and auto-targets.
-- **Orbit / melee:** MFA Shield, Log Shredder — damage on contact.
-- **Field / control:** DNS Sinkhole, DLP Net, Sandbox Trap, Honeypot Decoy —
-  slow, trap, or distract.
-- **Beam / detection:** SIEM Scanner, Quarantine Beam — scan and isolate.
-- **Passive:** Backup Restore — post-wave recovery.
+Archetypes and their tools:
 
-Most tools auto-fire; a couple (Backup Restore) are passive. Several have a
-flavour counter — e.g. EDR is strong vs Malware/Ransomware, DLP Net vs the
-Exfiltration Drone. See the README table for per-tool behaviour.
+| Archetype | Range | Tools |
+| --------- | ----- | ----- |
+| pulse | area | Firewall Pulse, Patch Wave, NDR Sweep |
+| radial | mid | Packet Storm, SOAR Volley |
+| projectile | mid/long | EDR Burst, IDS Needle, YARA Strike, Telemetry Lance |
+| ring | close/area | SIEM Scanner, Zero Trust Ring |
+| orbit | close | MFA Shield, Log Shredder, TLS Shield Arc |
+| beam | long | Quarantine Beam, Memory Scanner |
+| field | trap | DNS Sinkhole, DLP Net, Sandbox Trap |
+| companion | companion | Threat Hunter Drone |
+| mine | trap | Containment Mine |
+| wall | area | Network Segmentation Wall |
+
+**Loadout rules:** the player picks one **starting tool** from three at run start,
+then builds toward a cap of **6 active tools** (`CONFIG.maxTools`). Passives
+(Hardened Core, Optimized Routing, Telemetry Magnet, Backup Restore) sit outside
+the cap. Balance by range: short-range hits harder, long-range is safer but
+weaker, fields/traps trade damage for control.
 
 ## Progression & upgrades
 
 - **Telemetry → XP.** Pickups dropped by defeated threats fill the level bar.
   XP to next level grows geometrically (`base 10 × 1.22^(level-1)`).
-- **Level-up chooser.** Three valid cards, each tagged by **type** and **rarity**:
-  - Type — **New Tool** (unlock), **Upgrade** (improve an owned tool), or
-    **Passive** (always-on stat / safety net).
-  - Rarity — **Common / Uncommon / Rare**, which lightly weights the draw so
-    rares feel like a find (cosmetic-strength weighting, not power tiers).
-- A card is only offered when it makes sense (e.g. a tool's upgrades appear only
-  after it's unlocked).
+- **Level-up chooser (3 cards).** While the loadout has free slots, exactly **one
+  card is a new damage tool** and the rest are **upgrades for owned tools** or
+  passives. Once 6 tools are owned, all cards are upgrades/passives. Cards are
+  tagged by **type** (New Tool / Upgrade / Passive) and **rarity** (Common /
+  Uncommon / Rare), and show the numbers behind the choice (e.g. `Damage: 12 →
+  17`). Upgrades are never shown for tools you don't own; passives are
+  down-weighted so they don't dominate early.
 
 ## Difficulty & balance
 

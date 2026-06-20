@@ -14,6 +14,9 @@ API, database, accounts, or tracking.
 - [x] **Upgrade rarity** badges + richer incident report with per-type breakdown (v0.3.0).
 - [x] **Six new defensive tools** (Packet Storm, Threat Hunter Drone, Patch Wave,
       DLP Net, Log Shredder, Sandbox Trap) + balance pass — 14 tools total (v0.4.0).
+- [x] **Loadout system** — starting-tool choice, 6-tool cap, loadout HUD,
+      data-driven ability registry, 22 damage tools, numbers on cards, bigger
+      arena, quieter event feed (v0.5.0).
 
 ## Near term (small, safe additions)
 
@@ -29,7 +32,7 @@ API, database, accounts, or tracking.
       control burst, Memory Scanner beam) to round out the roster.
 - [ ] **Synergy upgrades** — cards that combine two owned tools.
 - [ ] **More threats** + a periodic **"Intrusion" mini-boss** every few waves.
-- [ ] **Tool cooldown/loadout HUD** showing owned tools and levels.
+- [ ] **Tool-replacement system** — swap a tool once the 6-slot loadout is full.
 - [ ] **Run summary history** — last N incident reports kept in `localStorage`.
 
 ## Long term (polish & reach)

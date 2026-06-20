@@ -17,7 +17,7 @@ window.CDL = window.CDL || {};
 
   /* ---- Central tunables (difficulty, balance, sizing) ---- */
   CDL.CONFIG = {
-    arena: { w: 1000, h: 620 },          // internal canvas resolution
+    arena: { w: 1200, h: 720 },          // internal canvas resolution (v0.5.0: bigger arena)
     storageKey: "cdl_packet_survivor_best",
 
     player: {
@@ -62,6 +62,9 @@ window.CDL = window.CDL || {};
                    desc: "Relentless. Faster scaling, tougher threats, constant pressure." },
     },
     defaultDifficulty: "analyst",
+
+    maxTools: 6,           // max active damage tools the player can own (v0.5.0)
+    levelupCards: 3,       // cards shown per level-up
   };
 
   // Convenience aliases used all over the codebase.
@@ -76,6 +79,7 @@ window.CDL = window.CDL || {};
     difficulty: "analyst",   // training | analyst | incident (chosen on the menu)
     player: null,
     enemies: [], projectiles: [], pickups: [], pulses: [], fields: [], decoys: [], particles: [],
+    mines: [], walls: [],
     feed: [],
     wave: 1, waveTimer: 0, spawnTimer: 0, runTime: 0,
     bestScore: 0, shake: 0, pendingLevelUps: 0,

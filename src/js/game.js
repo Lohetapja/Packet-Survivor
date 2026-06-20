@@ -47,6 +47,7 @@
     S.player = CDL.Player.create();
     S.enemies = []; S.projectiles = []; S.pickups = [];
     S.pulses = []; S.fields = []; S.decoys = []; S.particles = [];
+    S.mines = []; S.walls = [];
     S.wave = 1;
     S.waveTimer = CDL.CONFIG.waves.duration;
     S.spawnTimer = 0;
@@ -56,15 +57,25 @@
     S.bestScore = CDL.Storage.loadBest();
     S.stats = CDL.freshStats();
     CDL.UI.resetFeed();
-    CDL.Waves.announce(1);
     CDL.UI.syncHud();
   }
 
+  // Start Game → choose a starting damage tool, then begin the run.
   function startGame() {
     CDL.UI.setPauseVisible(false);
     CDL.UI.hideUpgrades();
     newGame();
+    S.state = "starttool";
+    CDL.UI.showStartTools(CDL.starterChoices(), beginRun);
+  }
+
+  // Apply the chosen starter and drop into wave 1.
+  function beginRun(def) {
+    CDL.grantTool(S.player, def.id);
+    CDL.UI.feedMsg("Acquired: " + def.name, "good", 0);
     CDL.UI.showScreen("game");
+    CDL.Waves.announce(1);
+    CDL.UI.syncHud();
     S.state = "playing";
   }
 
@@ -131,7 +142,8 @@
     CDL.UI.openUpgrades(S.player.level, CDL.buildChoices(), chooseUpgrade);
   }
   function chooseUpgrade(u) {
-    u.apply(S.player, S.player.tools);
+    u.apply(S.player);
+    if (u.kind === "unlock") CDL.UI.feedMsg("Acquired: " + u.name, "good", 0);
     S.pendingLevelUps--;
     CDL.UI.hideUpgrades();
     CDL.UI.syncHud();

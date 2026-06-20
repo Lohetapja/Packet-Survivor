@@ -95,6 +95,15 @@
       </div>
     </section>
 
+    <!-- ===================== CHOOSE STARTING TOOL ===================== -->
+    <section id="screen-starttool" class="screen hidden">
+      <div class="panel starttool-panel">
+        <h2>Choose Your First Tool</h2>
+        <p class="muted">Pick a starting defensive ability — you'll add more as you level up.</p>
+        <div id="starttool-cards" class="cards"></div>
+      </div>
+    </section>
+
     <!-- ===================== GAME SCREEN ===================== -->
     <section id="screen-game" class="screen hidden">
       <div class="topbar">
@@ -109,6 +118,8 @@
           <div class="bar bar-xp"><div id="xp-fill" class="bar-fill"></div></div>
           <span id="xp-text" class="hud-value">0 / 10</span>
         </div>
+
+        <div id="hud-loadout" class="hud-loadout"></div>
 
         <div class="hud-stats">
           <div class="stat"><span class="stat-k">LVL</span><span id="stat-level" class="stat-v">1</span></div>
@@ -125,11 +136,12 @@
         <button id="btn-pause" class="btn btn-small" title="Pause (Space)">⏸ Pause</button>
       </div>
 
+      <div id="event-feed" class="event-feed"></div>
+
       <div class="stage">
-        <canvas id="game-canvas" width="1000" height="620"></canvas>
+        <canvas id="game-canvas" width="1200" height="720"></canvas>
 
         <div id="damage-flash" class="damage-flash"></div>
-        <div id="event-feed" class="event-feed"></div>
         <div id="wave-banner" class="wave-banner hidden"></div>
 
         <!-- Pause overlay -->
@@ -202,6 +214,7 @@
   <script src="src/js/config.js"></script>
   <script src="src/js/storage.js"></script>
   <script src="src/js/effects.js"></script>
+  <script src="src/js/abilities.js"></script>
   <script src="src/js/enemies.js"></script>
   <script src="src/js/tools.js"></script>
   <script src="src/js/upgrades.js"></script>

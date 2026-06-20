@@ -23,7 +23,9 @@
         score: 0,
         pickupRange: c.pickupRange,
         invuln: 0,
-        tools: CDL.freshTools(),
+        backupHeal: 0,      // Backup Restore passive (heals each wave)
+        tools: {},          // id -> runtime tool state (owned damage tools)
+        toolOrder: [],      // ordered ids — loadout display + 6-slot cap
       };
     },
 
@@ -76,9 +78,6 @@
       const kb = CONFIG.player.knockbackOnHit;
       p.x = clamp(p.x + Math.cos(ang) * kb, p.r, W - p.r);
       p.y = clamp(p.y + Math.sin(ang) * kb, p.r, H - p.r);
-
-      if (e.type === "ransomware") CDL.UI.feedMsg("Ransomware Cube breached your defenses.", "alert", 1.5);
-      else CDL.UI.feedMsg("Hostile contact — defenses hit.", "alert", 1.5);
 
       if (p.hp <= 0) { p.hp = 0; CDL.Game.over(); }
     },

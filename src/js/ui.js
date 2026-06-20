@@ -12,21 +12,43 @@
   const $ = (id) => document.getElementById(id);
 
   let R = null; // cached DOM refs (populated by init)
+  let lastFeed = {}; // feed throttle memory — reset each run
 
-  // Feed throttle memory — reset each run so timestamps don't carry over.
-  let lastFeed = {};
-
-  // Danger word -> css class for the Threat Intel badges.
   const DANGER_CLS = { Low: "danger-low", Medium: "danger-med", High: "danger-high", Critical: "danger-crit" };
+
+  // Shared card markup (used by level-up + start-tool cards).
+  function cardInner(c) {
+    const tag = CDL.UPGRADE_TAGS[c.kind] || CDL.UPGRADE_TAGS.upgrade;
+    const rar = CDL.UPGRADE_RARITY[c.rarity] || CDL.UPGRADE_RARITY.common;
+    let html =
+      '<div class="card-badges">' +
+        '<span class="card-tag ' + tag.cls + '">' + tag.label + "</span>" +
+        '<span class="card-rarity ' + rar.cls + '">' + rar.label + "</span>" +
+      "</div>" +
+      '<div class="card-icon">' + c.icon + "</div>" +
+      '<div class="card-name">' + c.name + "</div>";
+    if (c.range) html += '<div class="card-range">' + c.range + "</div>";
+    if (c.desc) html += '<div class="card-desc">' + c.desc + "</div>";
+    if (c.stats && c.stats.length) {
+      html += '<div class="card-stats">';
+      for (const s of c.stats) html += '<div class="card-stat">' + s + "</div>";
+      html += "</div>";
+    }
+    html += '<button class="btn btn-primary">' + (c.btn || "Select") + "</button>";
+    return html;
+  }
 
   CDL.UI = {
     init() {
       R = {
-        screens: { menu: $("screen-menu"), howto: $("screen-howto"), game: $("screen-game"), gameover: $("screen-gameover") },
+        screens: {
+          menu: $("screen-menu"), howto: $("screen-howto"), starttool: $("screen-starttool"),
+          game: $("screen-game"), gameover: $("screen-gameover"),
+        },
         hpFill: $("hp-fill"), hpText: $("hp-text"),
         xpFill: $("xp-fill"), xpText: $("xp-text"),
         level: $("stat-level"), wave: $("stat-wave"), score: $("stat-score"), best: $("stat-best"),
-        hudDifficulty: $("hud-difficulty"),
+        hudDifficulty: $("hud-difficulty"), loadout: $("hud-loadout"),
         menuBest: $("menu-best"),
         feed: $("event-feed"),
         waveBanner: $("wave-banner"),
@@ -34,12 +56,10 @@
         overlayPause: $("overlay-pause"),
         overlayLevelup: $("overlay-levelup"),
         levelupCards: $("levelup-cards"), levelupLevel: $("levelup-level"),
-        // menu difficulty selector
+        startToolCards: $("starttool-cards"),
         diffBtns: Array.prototype.slice.call(document.querySelectorAll(".diff-btn")),
         diffDesc: $("diff-desc"),
-        // how-to info guides
         threatIntel: $("threat-intel-list"), toolGuide: $("tools-list"),
-        // game over + incident report
         goScore: $("go-score"), goWave: $("go-wave"), goLevel: $("go-level"), goBest: $("go-best"),
         goThreats: $("go-threats"), goTelemetry: $("go-telemetry"), goDifficulty: $("go-difficulty"),
         goTool: $("go-tool"), goThreat: $("go-threat"), goReco: $("go-reco"),
@@ -53,7 +73,6 @@
     showScreen(name) {
       for (const k in R.screens) R.screens[k].classList.toggle("hidden", k !== name);
     },
-
     setMenuBest(v) { R.menuBest.textContent = v; },
 
     /* ---- Difficulty selection (menu) ---- */
@@ -62,6 +81,20 @@
       CDL.S.difficulty = key;
       for (const b of R.diffBtns) b.classList.toggle("is-active", b.dataset.diff === key);
       R.diffDesc.textContent = CDL.CONFIG.difficulties[key].desc;
+    },
+
+    /* ---- Starting tool choice ---- */
+    showStartTools(choices, onPick) {
+      R.startToolCards.innerHTML = "";
+      for (const def of choices) {
+        const d = CDL.toolCardData(def);
+        const card = document.createElement("div");
+        card.className = "card rarity-rare";
+        card.innerHTML = cardInner({ kind: "unlock", rarity: "rare", icon: d.icon, name: def.name, range: d.range, desc: d.desc, stats: d.stats });
+        card.addEventListener("click", () => onPick(def));
+        R.startToolCards.appendChild(card);
+      }
+      CDL.UI.showScreen("starttool");
     },
 
     /* ---- HUD ---- */
@@ -76,25 +109,29 @@
       R.score.textContent = p.score;
       R.best.textContent = Math.max(S.bestScore, p.score);
       R.hudDifficulty.textContent = CDL.diff().label;
+      const icons = p.toolOrder.map((id) => CDL.ABILITY_MAP[id].icon).join("");
+      R.loadout.innerHTML =
+        '<span class="ld-count">Tools ' + p.toolOrder.length + " / " + CDL.CONFIG.maxTools + "</span>" +
+        '<span class="ld-icons">' + icons + "</span>";
     },
 
-    /* ---- Player damage flash (cheap CSS overlay) ---- */
+    /* ---- Player damage flash ---- */
     flashDamage() {
       const el = R.damageFlash;
       el.classList.remove("flash");
-      void el.offsetWidth; // reflow so the animation restarts every hit
+      void el.offsetWidth;
       el.classList.add("flash");
     },
 
-    /* ---- Event feed (throttled) ---- */
+    /* ---- Event feed (quiet: important messages only, fast fade) ---- */
     resetFeed() { lastFeed = {}; CDL.S.feed.length = 0; R.feed.innerHTML = ""; },
 
     feedMsg(text, kind, minGap = 2.5) {
       const S = CDL.S, now = S.runTime;
       if (lastFeed[text] !== undefined && now - lastFeed[text] < minGap) return;
       lastFeed[text] = now;
-      S.feed.push({ text, kind: kind || "", life: 3.2 });
-      if (S.feed.length > 5) S.feed.shift();
+      S.feed.push({ text, kind: kind || "", life: 2.2 });
+      if (S.feed.length > 2) S.feed.shift();
       CDL.UI.renderFeed();
     },
 
@@ -108,7 +145,6 @@
       }
     },
 
-    // Age feed items each frame; re-render only when one drops off.
     feedTick(dt) {
       const S = CDL.S;
       let changed = false;
@@ -121,11 +157,8 @@
 
     /* ---- Wave banner ---- */
     banner(title, sub) {
-      R.waveBanner.innerHTML =
-        '<div class="wb-title">' + title + "</div>" +
-        '<div class="wb-sub">' + sub + "</div>";
+      R.waveBanner.innerHTML = '<div class="wb-title">' + title + "</div>" + '<div class="wb-sub">' + sub + "</div>";
       R.waveBanner.classList.remove("hidden");
-      // Re-trigger the entrance animation.
       R.waveBanner.classList.remove("show"); void R.waveBanner.offsetWidth; R.waveBanner.classList.add("show");
       clearTimeout(CDL.UI._bannerT);
       CDL.UI._bannerT = setTimeout(() => R.waveBanner.classList.add("hidden"), 2000);
@@ -134,25 +167,16 @@
     /* ---- Pause ---- */
     setPauseVisible(on) { R.overlayPause.classList.toggle("hidden", !on); },
 
-    /* ---- Level-up upgrade cards ---- */
+    /* ---- Level-up cards ---- */
     openUpgrades(level, choices, onPick) {
       R.levelupLevel.textContent = level;
       R.levelupCards.innerHTML = "";
-      for (const u of choices) {
-        const tag = CDL.UPGRADE_TAGS[u.kind] || CDL.UPGRADE_TAGS.upgrade;
-        const rar = CDL.UPGRADE_RARITY[u.rarity] || CDL.UPGRADE_RARITY.common;
+      for (const c of choices) {
+        const rar = CDL.UPGRADE_RARITY[c.rarity] || CDL.UPGRADE_RARITY.common;
         const card = document.createElement("div");
         card.className = "card rarity-" + rar.cls;
-        card.innerHTML =
-          '<div class="card-badges">' +
-            '<span class="card-tag ' + tag.cls + '">' + tag.label + "</span>" +
-            '<span class="card-rarity ' + rar.cls + '">' + rar.label + "</span>" +
-          "</div>" +
-          '<div class="card-icon">' + u.icon + "</div>" +
-          '<div class="card-name">' + u.name + "</div>" +
-          '<div class="card-desc">' + u.desc + "</div>" +
-          '<button class="btn btn-primary">Select</button>';
-        card.addEventListener("click", () => onPick(u));
+        card.innerHTML = cardInner(c);
+        card.addEventListener("click", () => onPick(c));
         R.levelupCards.appendChild(card);
       }
       R.overlayLevelup.classList.remove("hidden");
@@ -171,23 +195,19 @@
       R.goTool.textContent = rep.tool;
       R.goThreat.textContent = rep.threat;
       R.goReco.textContent = rep.reco;
-
-      // Per-type threat breakdown (every threat, even 0, in stable order).
       R.goBreakdown.innerHTML = "";
       for (const row of rep.breakdown) {
         const el = document.createElement("div");
         el.className = "ibd-row" + (row.count > 0 ? "" : " ibd-zero");
-        el.innerHTML = '<span class="ibd-name">' + row.label + "</span>" +
-                       '<span class="ibd-count">' + row.count + "</span>";
+        el.innerHTML = '<span class="ibd-name">' + row.label + "</span>" + '<span class="ibd-count">' + row.count + "</span>";
         R.goBreakdown.appendChild(el);
       }
-
       R.goNewBest.classList.toggle("hidden", !rep.isBest);
       CDL.UI.showScreen("gameover");
     },
   };
 
-  /* ---- Static info guides (built once at init from data) ---- */
+  /* ---- Static info guides (built once at init) ---- */
   function buildThreatIntel() {
     R.threatIntel.innerHTML = "";
     for (const key of CDL.THREAT_ORDER) {
@@ -195,10 +215,8 @@
       const el = document.createElement("div");
       el.className = "intel-item";
       el.innerHTML =
-        '<div class="intel-head">' +
-          '<span class="intel-name">' + d.label + "</span>" +
-          '<span class="intel-danger ' + (DANGER_CLS[d.danger] || "danger-med") + '">' + d.danger + "</span>" +
-        "</div>" +
+        '<div class="intel-head"><span class="intel-name">' + d.label + "</span>" +
+          '<span class="intel-danger ' + (DANGER_CLS[d.danger] || "danger-med") + '">' + d.danger + "</span></div>" +
         '<div class="intel-behavior">' + d.behavior + "</div>" +
         '<div class="intel-tip">' + d.tip + "</div>";
       R.threatIntel.appendChild(el);
@@ -208,12 +226,15 @@
   function buildToolGuide() {
     R.toolGuide.innerHTML = "";
     for (const key of CDL.TOOL_ORDER) {
-      const t = CDL.TOOL_INFO[key];
+      const t = CDL.TOOL_INFO[key], def = CDL.ABILITY_MAP[key], b = def.base;
+      const dmg = b.dps != null ? b.dps + "/s" : b.damage;
       const el = document.createElement("div");
       el.className = "tool-item";
       el.innerHTML =
         '<div class="tool-head"><span class="tool-ic">' + t.icon + "</span>" +
-          '<span class="tool-name">' + t.name + "</span></div>" +
+          '<span class="tool-name">' + t.name + "</span>" +
+          '<span class="tool-range">' + def.range + "</span></div>" +
+        '<div class="tool-stat">⚔ ' + dmg + "</div>" +
         '<div class="tool-behavior">' + t.behavior + "</div>" +
         '<div class="tool-explain">' + t.explain + "</div>";
       R.toolGuide.appendChild(el);

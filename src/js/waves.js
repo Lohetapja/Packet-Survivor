@@ -62,8 +62,7 @@
       score: def.score, xp: def.xp,
       color: def.color, shape: def.shape,
       vx: 0, vy: 0,       // knockback velocity
-      shieldCd: 0,        // per-enemy cooldown vs MFA shield
-      shredCd: 0,         // per-enemy cooldown vs Log Shredder
+      orbitCd: 0,         // per-enemy cooldown vs orbit tools (MFA / Shredder / TLS Arc)
       hitFlash: 0,        // brief white flash when struck
       wob: Math.random() * 6.28,
     });
@@ -103,16 +102,15 @@
   // Advance to the next wave: announce the wave just survived, heal via
   // Backup Restore, then announce the incoming wave.
   function nextWave() {
-    const S = CDL.S;
-    CDL.UI.feedMsg("Wave " + S.wave + " contained — telemetry stabilized.", "good", 0);
+    const S = CDL.S, p = S.player;
+    CDL.UI.feedMsg("Wave " + S.wave + " contained.", "good", 0);
 
     S.wave++;
     S.waveTimer = WC.duration;
 
-    const bk = S.player.tools.backup;
-    if (bk.owned && S.player.hp < S.player.maxHp) {
-      S.player.hp = Math.min(S.player.maxHp, S.player.hp + bk.amount);
-      CDL.UI.feedMsg("Backup Restore recovered health.", "good");
+    // Backup Restore (passive) heals on surviving a wave.
+    if (p.backupHeal > 0 && p.hp < p.maxHp) {
+      p.hp = Math.min(p.maxHp, p.hp + p.backupHeal);
     }
     announce(S.wave);
   }

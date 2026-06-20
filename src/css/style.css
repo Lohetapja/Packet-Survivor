@@ -168,19 +168,19 @@ kbd {
 }
 
 /* ---------------- Game screen ---------------- */
-#screen-game { flex-direction: column; gap: 10px; max-width: 1040px; }
+#screen-game { flex-direction: column; gap: 8px; max-width: 1320px; }
 
 .topbar {
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 14px;
   background: linear-gradient(180deg, var(--panel) 0%, var(--bg-2) 100%);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 10px 16px;
+  padding: 8px 14px;
 }
-.hud-block { display: flex; flex-direction: column; gap: 4px; min-width: 180px; }
+.hud-block { display: flex; flex-direction: column; gap: 3px; min-width: 150px; }
 .hud-label { font-family: var(--mono); font-size: 10px; letter-spacing: 2px; color: var(--muted); }
 .hud-value { font-family: var(--mono); font-size: 11px; color: var(--text); }
 
@@ -195,15 +195,21 @@ kbd {
 .bar-health .bar-fill { background: linear-gradient(90deg, #f87171, #ef4444); box-shadow: 0 0 10px rgba(239,68,68,0.5) inset; }
 .bar-xp .bar-fill { background: linear-gradient(90deg, #34d399, #22d3ee); box-shadow: 0 0 10px rgba(34,211,153,0.5) inset; }
 
-.hud-stats { display: flex; gap: 14px; margin-left: auto; }
-.stat { display: flex; flex-direction: column; align-items: center; min-width: 52px; }
+.hud-stats { display: flex; gap: 12px; margin-left: auto; }
+.stat { display: flex; flex-direction: column; align-items: center; min-width: 48px; }
 .stat-k { font-family: var(--mono); font-size: 10px; letter-spacing: 1.5px; color: var(--muted); }
-.stat-v { font-family: var(--mono); font-size: 20px; color: var(--accent-2); font-weight: 700; }
+.stat-v { font-family: var(--mono); font-size: 18px; color: var(--accent-2); font-weight: 700; }
 
-/* ---------------- Stage / canvas ---------------- */
+/* Loadout chip */
+.hud-loadout { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 92px; }
+.ld-count { font-family: var(--mono); font-size: 10px; letter-spacing: 1px; color: var(--muted); }
+.ld-icons { font-size: 14px; line-height: 1; letter-spacing: 1px; min-height: 14px; }
+
+/* ---------------- Stage / canvas (bigger arena) ---------------- */
 .stage {
   position: relative;
   width: 100%;
+  height: min(78vh, 800px);
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
@@ -213,35 +219,33 @@ kbd {
 #game-canvas {
   display: block;
   width: 100%;
-  height: auto;
-  aspect-ratio: 1000 / 620;
+  height: 100%;
+  object-fit: contain;   /* keep 1200×720 aspect, letterbox if needed */
 }
 
-/* ---------------- Event feed ---------------- */
+/* ---------------- Event feed (compact strip below the HUD) ---------------- */
 .event-feed {
-  position: absolute;
-  top: 12px;
-  left: 12px;
+  width: 100%;
+  min-height: 22px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
   pointer-events: none;
-  max-width: 60%;
 }
 .feed-item {
   font-family: var(--mono);
-  font-size: 12px;
-  background: rgba(10,18,32,0.78);
-  border: 1px solid var(--border-hi);
-  border-left: 3px solid var(--accent);
-  border-radius: 6px;
-  padding: 5px 10px;
-  color: var(--text);
+  font-size: 11.5px;
+  background: rgba(10,18,32,0.7);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 3px 12px;
+  color: var(--muted);
   animation: feedIn 0.2s ease;
 }
-.feed-item.alert { border-left-color: var(--danger); color: #ffd9d4; }
-.feed-item.good  { border-left-color: var(--ok); }
-@keyframes feedIn { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.feed-item.alert { color: #ffd9d4; border-color: rgba(239,68,68,0.4); }
+.feed-item.good  { color: var(--ok); border-color: rgba(52,211,153,0.3); }
+@keyframes feedIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
 /* ---------------- Wave banner ---------------- */
 .wave-banner {
@@ -471,6 +475,31 @@ kbd {
 .ibd-count { color: var(--text); font-weight: 700; }
 .ibd-zero { opacity: 0.4; }
 
+/* ---------------- v0.5.0: tool cards (range + stat lines) ---------------- */
+.card-desc { min-height: 32px; }
+.card-range {
+  align-self: center; font-family: var(--mono); font-size: 10px; letter-spacing: 1px;
+  color: var(--accent-2); border: 1px solid rgba(34,211,238,0.35); background: rgba(34,211,238,0.08);
+  padding: 2px 9px; border-radius: 20px;
+}
+.card-stats { display: flex; flex-direction: column; gap: 3px; margin-top: 2px; }
+.card-stat {
+  font-family: var(--mono); font-size: 11.5px; color: var(--text);
+  background: rgba(56,189,248,0.06); border-radius: 6px; padding: 3px 8px;
+}
+
+/* Start-tool screen */
+.starttool-panel { width: 840px; max-width: 96%; text-align: center; }
+.starttool-panel h2 { font-size: 26px; color: #eaf6ff; }
+.starttool-panel .cards { margin-top: 18px; }
+
+/* Tool guide: range chip + headline damage */
+.tool-range {
+  margin-left: auto; font-family: var(--mono); font-size: 9px; letter-spacing: 1px;
+  color: var(--accent-2); border: 1px solid rgba(34,211,238,0.3); border-radius: 20px; padding: 2px 7px;
+}
+.tool-stat { font-family: var(--mono); font-size: 11px; color: var(--warn); margin-bottom: 4px; }
+
 /* ---------------- Responsive ---------------- */
 @media (max-width: 720px) {
   .howto-grid { grid-template-columns: repeat(2, 1fr); }
@@ -478,6 +507,8 @@ kbd {
   .topbar { flex-wrap: wrap; gap: 10px; }
   .hud-block { min-width: 130px; flex: 1; }
   .hud-stats { width: 100%; justify-content: space-between; margin-left: 0; }
+  .hud-loadout { display: none; }
+  .stage { height: 60vh; }
   .result-grid { grid-template-columns: 1fr; }
   .intel-grid, .tools-grid, .ibd-list { grid-template-columns: 1fr; }
   .diff-options { flex-direction: column; }

@@ -18,11 +18,13 @@ static server, and GitHub Pages — with **no build step**.
 Trade-off: load order matters. `index.html` loads files in dependency order:
 
 ```
-config → storage → effects → enemies → tools → upgrades → waves → player → ui → game
+config → storage → effects → abilities → enemies → tools → upgrades → waves → player → ui → game
 ```
 
 `config.js` must be first (it creates `window.CDL`, `CDL.CONFIG`, and `CDL.S`).
-`game.js` must be last (it boots everything and starts the loop).
+`abilities.js` must load before `enemies.js` (which reads `CDL.CONTINUOUS_SRC`
+at load time) and before the tool engine. `game.js` must be last (it boots
+everything and starts the loop).
 
 ## The namespace & shared state
 
@@ -42,11 +44,12 @@ config → storage → effects → enemies → tools → upgrades → waves → 
 | `config.js` | namespace, `CONFIG` tunables (incl. `difficulties`), `CDL.S` state, `CDL.diff()`, math helpers, `freshStats()` |
 | `storage.js` | `localStorage` best-score load/save (fails soft) |
 | `effects.js` | `CDL.Effects` — cosmetic particle pool (death bursts, telemetry pops), capped |
-| `enemies.js` | `ENEMY_TYPES` (+ intel/`reco` data), `THREAT_ORDER`, `damageEnemy()` (kill/type tally, hit-flash, death burst), AI, rendering, `nearest()` |
-| `tools.js` | `freshTools()`, tool auto-activation, projectiles, tool rendering, `TOOL_META`, `TOOL_INFO`/`TOOL_ORDER` (guide data) |
-| `upgrades.js` | `UPGRADES` pool (type + `rarity`), tag/rarity metadata, rarity-weighted `buildChoices()` |
-| `waves.js` | difficulty-aware scaling multipliers, `allowedTypes()`, spawning, `nextWave()`, banner text |
-| `player.js` | `create()`, movement, `gainXp()` (telemetry tally), `hit()` (damage flash), pickups, rendering |
+| `abilities.js` | **data registry**: `CDL.ABILITIES` (22 damage tools + archetype + stats + upgrade specs), `PASSIVES`, derived `TOOL_META/ORDER/INFO`, `CONTINUOUS_SRC`, loadout helpers (`createToolState`, `grantTool`, `starterChoices`, `toolCardData`) |
+| `enemies.js` | `ENEMY_TYPES` (+ intel/`reco`), `THREAT_ORDER`, `damageEnemy()` (kill/type tally, hit-flash, death burst), AI, field/wall DoT, rendering, `nearest()` |
+| `tools.js` | the **engine**: per-archetype handlers, projectile/mine/wall sim, and all tool rendering (runs whatever `player.toolOrder` owns) |
+| `upgrades.js` | loadout-aware `buildChoices()` (new-tool + owned-tool upgrade + passive cards), card builders, stat formatting, tag/rarity metadata |
+| `waves.js` | difficulty-aware scaling multipliers, `allowedTypes()`, spawning, `nextWave()` (Backup Restore heal), banner text |
+| `player.js` | `create()` (empty loadout: `tools{}`, `toolOrder[]`, `backupHeal`), movement, `gainXp()`, `hit()` (damage flash), pickups, rendering |
 | `ui.js` | **all** DOM: HUD (+difficulty), feed, banners, damage flash, difficulty selector, upgrade cards, incident report, Threat Intel & Tools guides |
 | `game.js` | input, state machine, main loop, run setup, level-up flow, incident report build, button wiring |
 
@@ -77,31 +80,35 @@ exclusively through `CDL.UI`.
 3. If it needs a new silhouette, add a `case` to `drawEnemy()`'s `switch`.
 4. Make it spawn by editing `allowedTypes(wave)` in `waves.js`.
 
-### Add a new tool
-1. Add its default state to `freshTools()` in `tools.js`.
-2. Add its behaviour (cooldown + effect) to `CDL.Tools.update()`, and any
-   visuals to the `draw*` helpers.
-3. Add an **unlock** card and **upgrade** cards to `CDL.UPGRADES` in
-   `upgrades.js` (use `available()` to gate them).
-4. Add a display name to `CDL.TOOL_META` (incident-report credit) and an entry
-   to `CDL.TOOL_INFO` + `CDL.TOOL_ORDER` (the Defensive Tools guide).
+### Add a new damage ability (the common case)
+Append one object to `CDL.ABILITIES` in `abilities.js` — **no engine code needed**
+if it fits an existing archetype:
+```js
+{ id, name, icon, range: "Close|Mid|Long|Area|Companion|Trap",
+  archetype: "pulse|radial|projectile|ring|orbit|beam|field|companion|mine|wall",
+  color, desc, explain, starter: true?,
+  base: { ...archetype stats }, ups: [ add("damage", 5, "+Damage", "common"), ... ] }
+```
+`TOOL_META/ORDER/INFO`, `CONTINUOUS_SRC`, the guide, the start-tool pool, and the
+incident report all derive from this automatically. `color` is a hex for
+projectile/orbit/companion tools and an `"r,g,b"` string for pulse/ring/beam/wall;
+field tools use a `kind` string (`dns`/`dlp`/`sandbox`) for the visual.
 
-Reusable primitives (so a new tool rarely needs new render code):
-- **Projectiles** — push to `S.projectiles` with `{ x, y, vx, vy, dmg, r, life,
-  source, color, bonus? }`. `source` drives kill credit; `color` tints it;
-  `bonus` applies the anti-Malware/Ransomware multiplier.
-- **Pulses** — push to `S.pulses` with `{ x, y, r:0, maxR, life, maxLife,
-  color? }` (`color` is an `"r,g,b"` string) for an expanding ring.
-- **Fields** — push to `S.fields` with `{ x, y, r, slow, life, maxLife, kind,
-  dps? }`. `slow` multiplies enemy speed inside; `dps` deals damage-over-time
-  (handled in `enemies.js`); `kind` (`dns`/`dlp`/`sandbox`) selects the visual.
-- Continuous damage sources (beams/fields) should be listed in
-  `CONTINUOUS_SRC` (enemies.js) so they skip the per-hit flash.
+### Add a new archetype (rare)
+Only if no existing behaviour fits: add a handler to `ARCH` in `tools.js`
+(receives `(st, def, dt)`), render it from the right `draw*` layer, and — if it
+deals continuous damage — make sure its tools land in `CONTINUOUS_SRC`.
 
-### Add an upgrade
-Append an object to `CDL.UPGRADES` with `id`, `name`, `icon`, `kind`
-(`unlock` | `upgrade` | `passive`), `rarity` (`common` | `uncommon` | `rare`),
-`desc`, `available(tools)`, and `apply(player, tools)`.
+Reusable effect arrays (most archetypes only push to these):
+- `S.projectiles` — `{ x, y, vx, vy, dmg, r, life, source, color, bonus, pierce, hits }`.
+- `S.pulses` — `{ x, y, r:0, maxR, life, maxLife, color }` (`"r,g,b"`).
+- `S.fields` — `{ x, y, r, slow, dps, life, maxLife, kind, src, bonusType? }`.
+- `S.mines` — `{ x, y, trigger, blastR, dmg, src, color }`.
+- `S.walls` — `{ x1, y1, x2, y2, dps, slow, src, color, life, maxLife }`.
+
+### Add a passive
+Append to `CDL.PASSIVES` in `abilities.js`: `{ id, name, icon, rarity, desc,
+preview(player), apply(player) }`. Passives never count toward the 6-tool cap.
 
 ### Tune difficulty
 Edit `CDL.CONFIG` in `config.js`:
